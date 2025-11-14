@@ -1,0 +1,1403 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Analytics — AquaTECHvironment</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/@popperjs/core@2"></script>
+    <script src="https://unpkg.com/tippy.js@6"></script>
+    <link rel="stylesheet" href="https://unpkg.com/tippy.js@6/themes/light.css">
+    <style>
+      /* Theme system with comprehensive color palette */
+      :root {
+        /* Light theme - enhanced readability */
+        --theme-bg: 248, 250, 252;
+        --theme-bg-secondary: 241, 245, 249;
+        --theme-text: 15, 23, 42;  /* Darker text for better contrast */
+        --theme-text-secondary: 51, 65, 85;
+        
+        /* Rich colors with better contrast for light theme */
+        --theme-green: 16, 185, 129;    /* Teal green */
+        --theme-blue: 59, 130, 246;     /* Bright blue */
+        --theme-orange: 245, 158, 11;   /* Amber */
+        --theme-violet: 124, 58, 237;   /* Bright violet */
+        --theme-pink: 236, 72, 153;     /* Hot pink */
+        --theme-red: 239, 68, 68;       /* Bright red */
+        
+        /* Card and overlay colors */
+        --theme-card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+        --theme-overlay: 255, 255, 255, 0.9;
+        --theme-success: 16, 185, 129;
+        --theme-success-light: 167, 243, 208;
+        --theme-border: 229, 231, 235;
+        --theme-card: 255, 255, 255;
+        --theme-card-hover: 243, 244, 246;
+        --theme-shadow: 0, 0, 0;
+      }
+      
+      [data-theme="dark"] {
+        /* Dark theme - lighter vibrant colors */
+        --theme-bg: 17, 24, 39;
+        --theme-bg-secondary: 31, 41, 55;
+        --theme-text: 243, 244, 246;    /* Light gray text */
+        --theme-text-secondary: 156, 163, 175;
+        
+        /* Light vibrant colors for dark theme */
+        --theme-green: 134, 239, 172;    /* Light green */
+        --theme-blue: 147, 197, 253;     /* Light blue */
+        --theme-orange: 253, 186, 116;   /* Light orange */
+        --theme-violet: 216, 180, 254;   /* Light violet */
+        --theme-pink: 251, 207, 232;     /* Light pink */
+        --theme-red: 252, 165, 165;      /* Light red */
+        --theme-success: 52, 211, 153;
+        --theme-success-light: 4, 120, 87;
+        --theme-border: 55, 65, 81;
+        --theme-card: 31, 41, 55;
+        --theme-card-hover: 55, 65, 81;
+        --theme-shadow: 0, 0, 0;
+      }
+
+      /* Enhanced theme utility classes with hover effects */
+      .theme-bg { 
+        background-color: rgb(var(--theme-bg));
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+      .theme-bg-secondary { 
+        background-color: rgb(var(--theme-bg-secondary));
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+      .theme-text { 
+        color: rgb(var(--theme-text));
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+      .theme-text-secondary { 
+        color: rgb(var(--theme-text-secondary));
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+      .theme-border { 
+        border-color: rgb(var(--theme-border));
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      /* Interactive elements */
+      .nav-link {
+        position: relative;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+      .nav-link:after {
+        content: '';
+        position: absolute;
+        width: 100%;
+        height: 2px;
+        bottom: -4px;
+        left: 0;
+        background-color: rgb(var(--theme-blue));
+        transform: scaleX(0);
+        transform-origin: right;
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+      .nav-link:hover:after {
+        transform: scaleX(1);
+        transform-origin: left;
+      }
+
+      /* Card hover effects */
+      .hover-lift {
+        transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+                    box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+      .hover-lift:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 24px -8px rgba(var(--theme-shadow), 0.15);
+      }
+
+      /* Button hover effects */
+      .button-hover {
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+      .button-hover:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px -2px rgba(var(--theme-shadow), 0.12);
+      }
+      
+      /* Mode button styles */
+      .mode-button {
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        background-color: rgb(var(--theme-card));
+        border: 1px solid rgb(var(--theme-border));
+      }
+
+      .mode-button.active {
+        background-color: rgb(var(--theme-green));
+        color: white;
+        box-shadow: 0 10px 15px -3px rgba(var(--theme-shadow), 0.1);
+      }
+
+      .mode-button:hover:not(.active) {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 24px -8px rgba(var(--theme-shadow), 0.15);
+      }
+
+      .mode-button.manual {
+        border-color: rgb(var(--theme-blue));
+      }
+      .mode-button.manual.active {
+        background-color: rgb(var(--theme-blue));
+      }
+
+      .mode-button.automatic {
+        border-color: rgb(var(--theme-orange));
+      }
+      .mode-button.automatic.active {
+        background-color: rgb(var(--theme-orange));
+      }
+
+      .mode-button.scheduled {
+        border-color: rgb(var(--theme-violet));
+      }
+      .mode-button.scheduled.active {
+        background-color: rgb(var(--theme-violet));
+      }
+
+      /* Card styles */
+      .feature-card {
+        background-color: rgba(var(--theme-bg), 0.8);
+        backdrop-filter: blur(8px);
+        border: 1px solid rgba(var(--theme-border), 0.1);
+        box-shadow: var(--theme-card-shadow);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+      }
+      
+      .feature-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.05);
+      }
+
+      /* Theme transitions */
+      .theme-transition {
+        transition-property: color, background-color, border-color, box-shadow;
+        transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+        transition-duration: 200ms;
+      }
+      
+      /* Animations */
+      .fade-up { 
+        opacity: 0; 
+        transform: translateY(8px); 
+        animation: fadeUp 0.45s ease forwards; 
+      }
+      @keyframes fadeUp { 
+        to { opacity: 1; transform: none; } 
+      }
+    </style>
+    <!-- Libraries for PDF and Excel export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.29/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
+  </head>
+  <body class="antialiased theme-text theme-bg theme-transition min-h-screen" data-theme="light">
+    <header class="theme-bg shadow-sm sticky top-0 z-50 theme-transition border-b theme-border">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3">
+        <div class="flex items-center justify-between">
+          <!-- Logo and Brand -->
+          <a href="/" class="flex items-center gap-3 group">
+            <div class="relative w-11 h-11 rounded-xl bg-gradient-to-br from-sky-600 to-emerald-400 flex items-center justify-center overflow-hidden">
+              <svg class="w-6 h-6 text-white" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 19V5M12 5C12 5 9 8 7 11M12 5C12 5 15 8 17 11" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                <path d="M6 19h12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+            </div>
+            <div class="transform transition group-hover:scale-[1.01]">
+              <div class="font-bold text-lg">AquaTECHvironment</div>
+              <div class="text-xs opacity-75">Technology • Environment</div>
+            </div>
+          </a>
+
+          <!-- Navigation -->
+          <nav class="hidden md:flex items-center gap-8">
+            <a href="/" class="nav-link font-medium text-sm theme-transition hover:text-sky-600" data-tippy-content="Home">Home</a>
+            <a href="/dashboard" class="nav-link font-medium text-sm theme-transition hover:text-sky-600" data-tippy-content="View Dashboard">Dashboard</a>
+            <a href="/analytics" class="nav-link font-medium text-sm theme-transition hover:text-sky-600" data-tippy-content="View Analytics">Analytics</a>
+            
+            <!-- Mode Navigation -->
+            <div class="flex items-center gap-4">
+              <a href="/manual" class="mode-button manual px-4 py-2 rounded-lg text-sm font-medium" data-tippy-content="Manual Mode">
+                🖐️ Manual
+              </a>
+              <a href="/automatic" class="mode-button automatic px-4 py-2 rounded-lg text-sm font-medium" data-tippy-content="Automatic Mode">
+                ⚙️ Auto
+              </a>
+              <a href="/scheduled" class="mode-button scheduled px-4 py-2 rounded-lg text-sm font-medium" data-tippy-content="Scheduled Mode">
+                ⏰ Schedule
+              </a>
+            </div>
+
+            <!-- Theme Toggle -->
+            <button id="theme-toggle" class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 theme-transition" data-tippy-content="Toggle Theme">
+              <svg class="w-5 h-5 theme-text" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" class="dark:hidden"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707" class="hidden dark:inline-block"/>
+              </svg>
+            </button>
+          </nav>
+        </div>
+      </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-6 py-10">
+      <!-- Export Tables Section -->
+      <div class="feature-card p-6 rounded-lg mb-6">
+        <h2 class="text-xl font-semibold mb-4">Export Mode Tables</h2>
+        <p class="text-sm theme-text-secondary mb-4">Download mode-specific data tables in PDF or Excel format.</p>
+        
+        <div class="flex flex-col md:flex-row items-center gap-4">
+          <div class="w-full md:w-1/3">
+            <label for="exportMode" class="block text-sm font-medium mb-2 select-label">Select Table to Export</label>
+            <div class="relative select-wrapper group">
+              <select id="exportMode" class="w-full p-3 pl-4 pr-12 rounded-lg border-2 theme-border bg-transparent appearance-none cursor-pointer transition-all duration-300 text-base font-medium hover:border-sky-500 focus:border-sky-600 export-select text-gray-900 dark:text-white">
+                <option value="all" class="export-option bg-white text-gray-900 hover:bg-sky-500 hover:text-white" data-icon="📊">All Plants Table</option>
+                <option value="manual" class="export-option bg-white text-gray-900 hover:bg-sky-500 hover:text-white" data-icon="🖐️">Manual Mode Plants</option>
+                <option value="automatic" class="export-option bg-white text-gray-900 hover:bg-sky-500 hover:text-white" data-icon="⚙️">Automatic Mode Plants</option>
+                <option value="scheduled" class="export-option bg-white text-gray-900 hover:bg-sky-500 hover:text-white" data-icon="⏰">Scheduled Mode Plants</option>
+              </select>
+              <!-- Animated dropdown arrow -->
+              <div class="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none arrow-wrapper">
+                <svg class="w-5 h-5 transform transition-all duration-300 arrow-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                </svg>
+              </div>
+              <!-- Enhanced hover effect -->
+              <div class="absolute inset-0 rounded-lg opacity-0 transition-all duration-300 pointer-events-none hover-effect"></div>
+            </div>
+          </div>
+
+          <!-- Enhanced styles with animations -->
+          <style>
+            /* Label animation */
+            .select-label {
+              transition: all 0.3s ease;
+            }
+            .select-wrapper:hover .select-label {
+              color: rgb(14, 165, 233);
+              transform: translateY(-1px);
+            }
+
+            /* Select element styling */
+            .export-select {
+              text-shadow: 0 0 0 currentColor;
+              transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+            
+            /* Option styling with icons */
+            .export-option {
+              padding: 12px;
+              transition: all 0.3s ease;
+              display: flex;
+              align-items: center;
+              gap: 8px;
+              background-color: white;
+              color: #1a1a1a;
+              cursor: pointer;
+            }
+
+            .export-option:hover {
+              background-color: rgb(14, 165, 233) !important;
+              color: white !important;
+            }
+            
+            .export-option::before {
+              content: attr(data-icon);
+              margin-right: 8px;
+            }
+
+            /* Dark theme adjustments for dropdown */
+            [data-theme="dark"] .export-option {
+              background-color: #1f2937;
+              color: #f3f4f6;
+            }
+
+            [data-theme="dark"] .export-option:hover {
+              background-color: rgb(14, 165, 233) !important;
+              color: white !important;
+            }
+
+            /* Fix webkit appearance */
+            select::-webkit-scrollbar {
+              width: 8px;
+            }
+
+            select::-webkit-scrollbar-track {
+              background: transparent;
+            }
+
+            select::-webkit-scrollbar-thumb {
+              background-color: rgba(14, 165, 233, 0.5);
+              border-radius: 4px;
+            }
+
+            select::-webkit-scrollbar-thumb:hover {
+              background-color: rgba(14, 165, 233, 0.8);
+            }
+
+            /* Enhance focus state */
+            .export-select:focus option:checked {
+              background-color: rgb(14, 165, 233);
+              color: white;
+            }
+
+            /* Hover animations */
+            .select-wrapper:hover .arrow-icon {
+              transform: translateY(2px);
+              color: rgb(14, 165, 233);
+            }
+
+            .select-wrapper:hover .export-select {
+              transform: translateY(-1px);
+              box-shadow: 0 4px 12px rgba(14, 165, 233, 0.1);
+            }
+
+            /* Focus state */
+            .export-select:focus {
+              outline: none;
+              border-color: rgb(14, 165, 233);
+              box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.2);
+              transform: translateY(-1px);
+            }
+
+            /* Hover effect */
+            .hover-effect {
+              background: radial-gradient(
+                circle at var(--x, 50%) var(--y, 50%),
+                rgba(14, 165, 233, 0.1) 0%,
+                rgba(14, 165, 233, 0.05) 45%,
+                transparent 65%
+              );
+              opacity: 0;
+              transition: opacity 0.3s ease;
+            }
+
+            .select-wrapper:hover .hover-effect {
+              opacity: 1;
+            }
+
+            /* Dark theme adjustments */
+            [data-theme="dark"] .export-select {
+              color: rgb(226, 232, 240);
+              border-color: rgba(226, 232, 240, 0.1);
+            }
+
+            [data-theme="dark"] .hover-effect {
+              background: radial-gradient(
+                circle at var(--x, 50%) var(--y, 50%),
+                rgba(226, 232, 240, 0.1) 0%,
+                rgba(226, 232, 240, 0.05) 45%,
+                transparent 65%
+              );
+            }
+          </style>
+
+          <!-- Mouse tracking for hover effect -->
+          <script>
+            const selectWrapper = document.querySelector('.select-wrapper');
+            const hoverEffect = document.querySelector('.hover-effect');
+            
+            selectWrapper.addEventListener('mousemove', (e) => {
+              const rect = selectWrapper.getBoundingClientRect();
+              const x = ((e.clientX - rect.left) / rect.width) * 100;
+              const y = ((e.clientY - rect.top) / rect.height) * 100;
+              
+              hoverEffect.style.setProperty('--x', `${x}%`);
+              hoverEffect.style.setProperty('--y', `${y}%`);
+            });
+
+            // Add icons to options when rendered in the dropdown
+            const exportSelect = document.getElementById('exportMode');
+            exportSelect.addEventListener('mousedown', () => {
+              requestAnimationFrame(() => {
+                const options = document.querySelectorAll('.export-option');
+                options.forEach(option => {
+                  if (!option.dataset.initialized) {
+                    const icon = option.dataset.icon;
+                    option.textContent = `${icon} ${option.textContent}`;
+                    option.dataset.initialized = 'true';
+                  }
+                });
+              });
+            });
+          </script>
+          
+          <div class="flex flex-wrap gap-3 items-end">
+            <button onclick="exportTable('pdf')" class="flex items-center gap-2 px-4 py-2 rounded-lg bg-red-500 hover:bg-red-600 text-white transition-colors">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              PDF
+            </button>
+            
+            <button onclick="exportTable('excel')" class="flex items-center gap-2 px-4 py-2 rounded-lg bg-green-500 hover:bg-green-600 text-white transition-colors">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              Excel
+            </button>
+          </div>
+        </div>
+
+        <div id="exportStatus" class="mt-4 text-sm hidden">
+          <div class="flex items-center gap-2 text-blue-500">
+            <div class="animate-spin rounded-full h-4 w-4 border-2 border-blue-500 border-t-transparent"></div>
+            <span>Preparing your download...</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="md:col-span-2 feature-card p-6 rounded-lg">
+          <h2 class="text-xl font-semibold mb-4">Mode Usage</h2>
+          <p class="text-sm theme-text-secondary mb-4">Most used modes in the system. Data is aggregated from stored plant records.</p>
+          <div class="w-full h-96 flex items-center justify-center">
+            <canvas id="modeChart" width="400" height="400"></canvas>
+          </div>
+
+          <!-- Activity Logs Section -->
+          <div class="mt-8">
+            <h3 class="text-lg font-semibold mb-4 flex items-center gap-2">
+              <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              Recent Activity Logs
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <!-- Manual Mode Activity Log -->
+              <div class="bg-gradient-to-br from-white to-cyan-50/30 dark:from-gray-800 dark:to-gray-800/95 rounded-xl p-5 border theme-border shadow-sm hover:shadow-md transition-all duration-300 relative group">
+                <div class="absolute inset-0 bg-gradient-to-r from-cyan-400/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl pointer-events-none"></div>
+                <div class="flex items-center justify-between mb-4">
+                  <div class="flex items-center gap-3">
+                    <div class="relative">
+                      <span class="w-3 h-3 rounded-full bg-cyan-400 absolute animate-ping opacity-40"></span>
+                      <span class="w-3 h-3 rounded-full bg-cyan-400 relative shadow-lg shadow-cyan-200/50 z-10"></span>
+                    </div>
+                    <h3 class="font-semibold text-base flex items-center gap-2">
+                      Manual Mode
+                      <svg class="w-4 h-4 text-cyan-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 11.5V14m0-2.5v-6a1.5 1.5 0 113 0m-3 6a1.5 1.5 0 00-3 0v2a7.5 7.5 0 0015 0v-5a1.5 1.5 0 00-3 0m-6-3V11m0-5.5v-1a1.5 1.5 0 013 0v1m0 0V11m0-5.5a1.5 1.5 0 013 0v3m0 0V11"/>
+                      </svg>
+                    </h3>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <span class="px-3 py-1 rounded-full bg-gradient-to-r from-cyan-100 to-cyan-50 dark:from-cyan-900 dark:to-gray-800 text-xs font-medium shadow-sm border border-cyan-200/30 dark:border-cyan-700/30" id="manualCount">0 activities</span>
+                  </div>
+                </div>
+                <div class="space-y-3 max-h-[320px] overflow-y-auto custom-scrollbar pr-2 relative" id="manualActivityLog">
+                  <div class="absolute inset-x-0 top-0 h-6 bg-gradient-to-b from-white dark:from-gray-800 to-transparent pointer-events-none z-10"></div>
+                  <div class="absolute inset-x-0 bottom-0 h-6 bg-gradient-to-t from-white dark:from-gray-800 to-transparent pointer-events-none z-10"></div>
+                  <!-- Activities will be populated here -->
+                </div>
+              </div>
+
+              <!-- Automatic Mode Activity Log -->
+              <div class="bg-gradient-to-br from-white to-orange-50/30 dark:from-gray-800 dark:to-gray-800/95 rounded-xl p-5 border theme-border shadow-sm hover:shadow-md transition-all duration-300 relative group">
+                <div class="absolute inset-0 bg-gradient-to-r from-orange-400/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl pointer-events-none"></div>
+                <div class="flex items-center justify-between mb-4">
+                  <div class="flex items-center gap-3">
+                    <div class="relative">
+                      <span class="w-3 h-3 rounded-full bg-orange-400 absolute animate-ping opacity-40"></span>
+                      <span class="w-3 h-3 rounded-full bg-orange-400 relative shadow-lg shadow-orange-200/50 z-10"></span>
+                    </div>
+                    <h3 class="font-semibold text-base flex items-center gap-2">
+                      Automatic Mode
+                      <svg class="w-4 h-4 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                      </svg>
+                    </h3>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <span class="px-3 py-1 rounded-full bg-gradient-to-r from-orange-100 to-orange-50 dark:from-orange-900 dark:to-gray-800 text-xs font-medium shadow-sm border border-orange-200/30 dark:border-orange-700/30" id="automaticCount">0 activities</span>
+                  </div>
+                </div>
+                <div class="space-y-3 max-h-[320px] overflow-y-auto custom-scrollbar pr-2 relative" id="automaticActivityLog">
+                  <div class="absolute inset-x-0 top-0 h-6 bg-gradient-to-b from-white dark:from-gray-800 to-transparent pointer-events-none z-10"></div>
+                  <div class="absolute inset-x-0 bottom-0 h-6 bg-gradient-to-t from-white dark:from-gray-800 to-transparent pointer-events-none z-10"></div>
+                  <!-- Activities will be populated here -->
+                </div>
+              </div>
+
+              <!-- Scheduled Mode Activity Log -->
+              <div class="bg-gradient-to-br from-white to-fuchsia-50/30 dark:from-gray-800 dark:to-gray-800/95 rounded-xl p-5 border theme-border shadow-sm hover:shadow-md transition-all duration-300 relative group">
+                <div class="absolute inset-0 bg-gradient-to-r from-fuchsia-400/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl pointer-events-none"></div>
+                <div class="flex items-center justify-between mb-4">
+                  <div class="flex items-center gap-3">
+                    <div class="relative">
+                      <span class="w-3 h-3 rounded-full bg-fuchsia-400 absolute animate-ping opacity-40"></span>
+                      <span class="w-3 h-3 rounded-full bg-fuchsia-400 relative shadow-lg shadow-fuchsia-200/50 z-10"></span>
+                    </div>
+                    <h3 class="font-semibold text-base flex items-center gap-2">
+                      Scheduled Mode
+                      <svg class="w-4 h-4 text-fuchsia-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                      </svg>
+                    </h3>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <span class="px-3 py-1 rounded-full bg-gradient-to-r from-fuchsia-100 to-fuchsia-50 dark:from-fuchsia-900 dark:to-gray-800 text-xs font-medium shadow-sm border border-fuchsia-200/30 dark:border-fuchsia-700/30" id="scheduledCount">0 activities</span>
+                  </div>
+                </div>
+                <div class="space-y-3 max-h-[320px] overflow-y-auto custom-scrollbar pr-2 relative" id="scheduledActivityLog">
+                  <div class="absolute inset-x-0 top-0 h-6 bg-gradient-to-b from-white dark:from-gray-800 to-transparent pointer-events-none z-10"></div>
+                  <div class="absolute inset-x-0 bottom-0 h-6 bg-gradient-to-t from-white dark:from-gray-800 to-transparent pointer-events-none z-10"></div>
+                  <!-- Activities will be populated here -->
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <aside class="feature-card p-6 rounded-lg">
+
+        <!-- Daily Watering Frequency Section -->
+        <div class="col-span-3 feature-card p-6 rounded-lg mt-6">
+          <h2 class="text-xl font-semibold mb-4">Daily Watering Frequency</h2>
+          <p class="text-sm theme-text-secondary mb-4">Number of times plants were watered each day over the last 7 days, broken down by mode.</p>
+          <div class="w-full h-80 flex items-center justify-center">
+            <canvas id="dailyFrequencyChart" width="800" height="300"></canvas>
+          </div>
+          <div class="mt-4 text-sm theme-text-secondary">
+            <p>Chart shows watering events per day, stacked by trigger type (Manual, Scheduled, Automatic).</p>
+          </div>
+        </div>
+
+        <!-- Timeline Chart Section -->
+        <div class="col-span-3 feature-card p-6 rounded-lg mt-6">
+          <h2 class="text-xl font-semibold mb-4">Water Pump Activity Timeline</h2>
+          <p class="text-sm theme-text-secondary mb-4">Track water pump usage patterns over time. Shows when the pump was active and for how long.</p>
+          <div class="w-full h-80 flex items-center justify-center">
+            <canvas id="pumpTimeline" width="800" height="300"></canvas>
+          </div>
+          <div class="mt-4 grid grid-cols-2 gap-4">
+            <div class="text-sm">
+              <div class="font-medium mb-2">Total Active Time Today</div>
+              <div id="todayActiveTime" class="text-2xl font-bold text-emerald-500">-</div>
+            </div>
+            <div class="text-sm">
+              <div class="font-medium mb-2">Average Duration</div>
+              <div id="averageDuration" class="text-2xl font-bold text-sky-500">-</div>
+            </div>
+          </div>
+        </div>
+        
+        <style>
+          /* Custom scrollbar for activity logs */
+          .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+          }
+          
+          .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+          }
+          
+          .custom-scrollbar::-webkit-scrollbar-thumb {
+            background-color: rgba(var(--theme-border), 0.5);
+            border-radius: 4px;
+          }
+          
+          .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background-color: rgba(var(--theme-text-secondary), 0.5);
+          }
+
+          /* Activity item styles and animations */
+          .activity-item {
+            animation: slideIn 0.3s ease-out forwards;
+            font-size: 0.875rem;
+            position: relative;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            background: rgba(var(--theme-bg), 0.5);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(var(--theme-border), 0.1);
+            transition: all 0.2s ease;
+          }
+
+          .activity-item:hover {
+            background: rgba(var(--theme-bg), 0.8);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+          }
+
+          @keyframes slideIn {
+            from {
+              opacity: 0;
+              transform: translateY(-10px);
+            }
+            to {
+              opacity: 1;
+              transform: translateY(0);
+            }
+          }
+
+          /* Pulsing indicator animation */
+          @keyframes gentlePulse {
+            0% { opacity: 0.6; }
+            50% { opacity: 1; }
+            100% { opacity: 0.6; }
+          }
+
+          .animate-pulse {
+            animation: gentlePulse 2s ease-in-out infinite;
+          }
+
+          /* Custom scrollbar styling */
+          .custom-scrollbar::-webkit-scrollbar {
+            width: 5px;
+          }
+
+          .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+            margin: 4px 0;
+          }
+
+          .custom-scrollbar::-webkit-scrollbar-thumb {
+            background-color: rgba(var(--theme-border), 0.5);
+            border-radius: 10px;
+            transition: background-color 0.2s;
+          }
+
+          .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background-color: rgba(var(--theme-text-secondary), 0.5);
+          }
+
+          /* Custom badge styles */
+          .status-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.75rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+          }
+
+          .status-badge.completed {
+            background: rgba(var(--theme-success-light), 0.15);
+            color: rgb(var(--theme-success));
+            border: 1px solid rgba(var(--theme-success), 0.2);
+          }
+
+          .status-badge.pending {
+            background: rgba(var(--theme-orange), 0.15);
+            color: rgb(var(--theme-orange));
+            border: 1px solid rgba(var(--theme-orange), 0.2);
+          }
+
+          /* Activity counters */
+          .activity-count {
+            background: linear-gradient(to right, rgba(var(--theme-blue), 0.1), rgba(var(--theme-blue), 0.05));
+            border: 1px solid rgba(var(--theme-blue), 0.2);
+            transition: all 0.2s ease;
+          }
+
+          .activity-count:hover {
+            background: linear-gradient(to right, rgba(var(--theme-blue), 0.15), rgba(var(--theme-blue), 0.1));
+          }
+        </style>
+          <h3 class="font-medium mb-4">Pump Activity Types</h3>
+          <ul class="text-sm theme-text-secondary space-y-3">
+            <li class="flex items-center gap-2">
+              <span class="w-4 h-4 rounded-full inline-block" style="background: rgba(0, 255, 255, 0.85); box-shadow: 0 0 8px rgba(0, 255, 255, 0.6)"></span>
+              <span>Manual: Water Now button press</span>
+            </li>
+            <li class="flex items-center gap-2">
+              <span class="w-4 h-4 rounded-full inline-block" style="background: rgba(255, 0, 255, 0.85); box-shadow: 0 0 8px rgba(255, 0, 255, 0.6)"></span>
+              <span>Scheduled: Set date/time watering</span>
+            </li>
+            <li class="flex items-center gap-2">
+              <span class="w-4 h-4 rounded-full inline-block" style="background: rgba(255, 128, 0, 0.85); box-shadow: 0 0 8px rgba(255, 128, 0, 0.6)"></span>
+              <span>Automatic: Low moisture trigger (≤45%)</span>
+            </li>
+          </ul>
+          <div class="mt-4 text-xs theme-text-secondary">
+            <p class="mb-2">Trigger Details:</p>
+            <ul class="list-disc pl-5 space-y-1">
+              <li>Manual: Activated by Water Now button</li>
+              <li>Scheduled: Based on set watering schedule</li>
+              <li>Automatic: Triggers when moisture ≤45%</li>
+            </ul>
+          </div>
+        </aside>
+      </div>
+    </main>
+
+    <script>
+      // Initialize tooltips
+      tippy('[data-tippy-content]', {
+        theme: document.body.dataset.theme === 'dark' ? 'dark' : 'light',
+        animation: 'shift-away'
+      });
+
+      // Theme Toggle Functionality
+      const themeToggle = document.getElementById('theme-toggle');
+      
+      function setTheme(isDark) {
+        document.body.dataset.theme = isDark ? 'dark' : 'light';
+        localStorage.setItem('theme', isDark ? 'dark' : 'light');
+        // Update tooltip theme
+        tippy.setDefaultProps({ theme: isDark ? 'dark' : 'light' });
+      }
+
+      // Initialize theme
+      const savedTheme = localStorage.getItem('theme') || 'light';
+      setTheme(savedTheme === 'dark');
+
+      // Theme toggle handler
+      themeToggle.addEventListener('click', () => {
+        const isDark = document.body.dataset.theme === 'dark';
+        setTheme(!isDark);
+      });
+
+      // Listen for theme changes from other pages
+      window.addEventListener('storage', (event) => {
+        if (event.key === 'theme') {
+          setTheme(event.newValue === 'dark');
+        }
+      });
+
+      // Set year in footer
+      const yearEl = document.getElementById('year');
+      if (yearEl) yearEl.textContent = new Date().getFullYear();
+    </script>
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+      // Export table functionality
+      async function exportTable(format) {
+        const exportStatus = document.getElementById('exportStatus');
+        const mode = document.getElementById('exportMode').value;
+        
+        try {
+          exportStatus.classList.remove('hidden');
+          
+          // Fetch data for the selected mode
+          const response = await fetch(`/api/table-data/${mode}?format=${format}`);
+          if (!response.ok) throw new Error('Failed to fetch data');
+          
+          // Handle binary response for PDF and Excel
+          if (format === 'pdf' || format === 'excel') {
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${mode}_mode_records_${new Date().toISOString().split('T')[0]}.${format === 'pdf' ? 'pdf' : 'xlsx'}`;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            a.remove();
+          }
+        } catch (error) {
+          console.error('Export error:', error);
+          alert('Failed to export data. Please try again.');
+        } finally {
+          exportStatus.classList.add('hidden');
+        }
+      }
+
+      function exportToPDF(data, mode) {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+
+        // Title
+        const title = `${mode.charAt(0).toUpperCase() + mode.slice(1)} Mode Records`;
+        doc.setFontSize(16);
+        doc.text(title, 14, 15);
+        
+        // Subtitle with date
+        doc.setFontSize(10);
+        doc.text(`Generated on ${new Date().toLocaleDateString()} at ${new Date().toLocaleTimeString()}`, 14, 25);
+
+        // Configure columns based on mode
+        const baseColumns = [
+          { header: 'Date', dataKey: 'date' },
+          { header: 'Time', dataKey: 'time' },
+          { header: 'Plant Name', dataKey: 'plantName' },
+          { header: 'Duration', dataKey: 'duration' },
+          { header: 'Status', dataKey: 'status' }
+        ];
+
+        // Add mode-specific columns
+        if (mode === 'automatic') {
+          baseColumns.push({ header: 'Moisture Level', dataKey: 'moistureLevel' });
+        } else if (mode === 'scheduled') {
+          baseColumns.push({ header: 'Schedule Time', dataKey: 'scheduleTime' });
+        }
+
+        // Format data for table
+        const formattedData = data.map(record => {
+          const base = {
+            date: new Date(record.timestamp).toLocaleDateString(),
+            time: new Date(record.timestamp).toLocaleTimeString(),
+            plantName: record.plantName,
+            duration: `${record.duration} min`,
+            status: record.status
+          };
+
+          if (mode === 'automatic') {
+            base.moistureLevel = `${record.moistureLevel}%`;
+          } else if (mode === 'scheduled') {
+            base.scheduleTime = record.scheduleTime;
+          }
+
+          return base;
+        });
+
+        // Create table
+        doc.autoTable({
+          startY: 35,
+          head: [baseColumns.map(col => col.header)],
+          body: formattedData.map(row => baseColumns.map(col => row[col.dataKey])),
+          theme: 'grid',
+          headStyles: {
+            fillColor: [41, 128, 185],
+            textColor: 255,
+            fontSize: 10
+          },
+          styles: {
+            fontSize: 9,
+            cellPadding: 3
+          },
+          alternateRowStyles: {
+            fillColor: [245, 245, 245]
+          }
+        });
+
+        // Save PDF
+        doc.save(`${mode}_mode_records_${new Date().toISOString().split('T')[0]}.pdf`);
+      }
+
+      function exportToExcel(data, mode) {
+        // Format data for Excel
+        const formattedData = data.map(record => {
+          const base = {
+            'Date': new Date(record.timestamp).toLocaleDateString(),
+            'Time': new Date(record.timestamp).toLocaleTimeString(),
+            'Plant Name': record.plantName,
+            'Duration (minutes)': record.duration,
+            'Status': record.status
+          };
+
+          if (mode === 'automatic') {
+            base['Moisture Level'] = `${record.moistureLevel}%`;
+          } else if (mode === 'scheduled') {
+            base['Schedule Time'] = record.scheduleTime;
+          }
+
+          return base;
+        });
+
+        // Create worksheet
+        const ws = XLSX.utils.json_to_sheet(formattedData);
+
+        // Set column widths
+        const colWidths = [
+          { wch: 12 },  // Date
+          { wch: 10 },  // Time
+          { wch: 20 },  // Plant Name
+          { wch: 15 },  // Duration
+          { wch: 12 },  // Status
+          { wch: 15 }   // Additional column (Moisture/Schedule)
+        ];
+        ws['!cols'] = colWidths;
+
+        // Create workbook and add worksheet
+        const wb = XLSX.utils.book_new();
+        const sheetName = `${mode.charAt(0).toUpperCase() + mode.slice(1)} Mode Records`;
+        XLSX.utils.book_append_sheet(wb, ws, sheetName);
+
+        // Generate Excel file
+        XLSX.writeFile(wb, `${mode}_mode_records_${new Date().toISOString().split('T')[0]}.xlsx`);
+      }
+
+    </script>
+    <script>
+      // Fetch mode usage counts and render chart
+      async function renderModeChart() {
+        try {
+          const resp = await fetch('/api/mode-usage');
+          const data = await resp.json();
+          if (!data.success) throw new Error(data.error || 'Failed to load data');
+
+          const counts = data.counts || { automatic: 0, manual: 0, scheduled: 0 };
+          const ctx = document.getElementById('modeChart').getContext('2d');
+
+          const chart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+              labels: ['Automatic', 'Manual', 'Scheduled'],
+              datasets: [{
+                data: [counts.automatic || 0, counts.manual || 0, counts.scheduled || 0],
+                backgroundColor: [
+                  'rgba(255, 128, 0, 0.85)',    // Neon Orange for Automatic
+                  'rgba(0, 255, 255, 0.85)',    // Neon Cyan for Manual
+                  'rgba(255, 0, 255, 0.85)'     // Neon Magenta for Scheduled
+                ],
+                borderColor: ['#fff','#fff','#fff'],
+                borderWidth: 2
+              }]
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              animation: {
+                animateScale: true,
+                animateRotate: true,
+                duration: 2000,
+                easing: 'easeInOutQuart'
+              },
+              plugins: {
+                legend: { 
+                  position: 'bottom',
+                  labels: {
+                    padding: 20,
+                    usePointStyle: true,
+                    pointStyle: 'circle'
+                  }
+                },
+                tooltip: {
+                  enabled: true,
+                  callbacks: {
+                    label: function(context) {
+                      const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                      const value = context.raw;
+                      const percentage = ((value / total) * 100).toFixed(1);
+                      return `${context.label}: ${value} (${percentage}%)`;
+                    }
+                  }
+                }
+              }
+            }
+          });
+        } catch (err) {
+          console.error('Error rendering mode chart', err);
+        }
+      }
+
+      // Only run when DOM is ready
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => {
+          renderModeChart();
+          renderPumpTimeline();
+        });
+      } else {
+        renderModeChart();
+        renderPumpTimeline();
+      }
+
+      // Format duration in minutes to readable format
+      function formatDuration(minutes) {
+        if (minutes < 60) return `${minutes}m`;
+        const hours = Math.floor(minutes / 60);
+        const mins = minutes % 60;
+        return mins > 0 ? `${hours}h ${mins}m` : `${hours}h`;
+      }
+
+      // Format time for display
+      function formatTime(date) {
+        return new Date(date).toLocaleTimeString('en-US', {
+          hour: '2-digit',
+          minute: '2-digit',
+          hour12: true
+        });
+      }
+
+      // Render pump timeline chart
+      async function renderPumpTimeline() {
+        try {
+          const resp = await fetch('/api/pump-activity');
+          const data = await resp.json();
+          if (!data.success) throw new Error(data.error || 'Failed to load pump activity data');
+
+          const activities = data.activities || [];
+          const ctx = document.getElementById('pumpTimeline').getContext('2d');
+
+          // Calculate total active time today and average duration
+          const today = new Date().setHours(0, 0, 0, 0);
+          const todayActivities = activities.filter(a => new Date(a.startTime) >= today);
+          const totalActiveToday = todayActivities.reduce((acc, curr) => 
+            acc + (curr.duration || 0), 0);
+          
+          const avgDuration = activities.length > 0 
+            ? activities.reduce((acc, curr) => acc + (curr.duration || 0), 0) / activities.length 
+            : 0;
+
+          // Update stats
+          document.getElementById('todayActiveTime').textContent = formatDuration(totalActiveToday);
+          document.getElementById('averageDuration').textContent = formatDuration(Math.round(avgDuration));
+
+          new Chart(ctx, {
+            type: 'bar',
+            data: {
+              labels: activities.map(a => formatTime(a.startTime)),
+              datasets: [{
+                label: 'Pump Active Duration (minutes)',
+                data: activities.map(a => a.duration),
+                backgroundColor: activities.map(a => {
+                  switch(a.trigger) {
+                    case 'manual_button':
+                      return 'rgba(0, 255, 255, 0.4)';  // Neon cyan for manual
+                    case 'schedule':
+                      return 'rgba(255, 0, 255, 0.4)';  // Neon magenta for schedule
+                    case 'moisture_low':
+                      return 'rgba(255, 128, 0, 0.4)';  // Neon orange for automatic
+                    default:
+                      return 'rgba(128, 128, 128, 0.4)';
+                  }
+                }),
+                borderColor: activities.map(a => {
+                  switch(a.trigger) {
+                    case 'manual_button':
+                      return 'rgba(0, 255, 255, 1)';
+                    case 'schedule':
+                      return 'rgba(255, 0, 255, 1)';
+                    case 'moisture_low':
+                      return 'rgba(255, 128, 0, 1)';
+                    default:
+                      return 'rgba(128, 128, 128, 1)';
+                  }
+                }),
+                borderWidth: 2,
+                barPercentage: 0.8,
+                categoryPercentage: 0.9,
+              }]
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              animation: {
+                duration: 2000,
+                easing: 'easeInOutQuart'
+              },
+              scales: {
+                x: {
+                  grid: {
+                    display: false
+                  },
+                  title: {
+                    display: true,
+                    text: 'Time'
+                  }
+                },
+                y: {
+                  beginAtZero: true,
+                  title: {
+                    display: true,
+                    text: 'Duration (minutes)'
+                  },
+                  grid: {
+                    color: 'rgba(255, 255, 255, 0.1)'
+                  }
+                }
+              },
+              plugins: {
+                legend: {
+                  display: false
+                },
+                tooltip: {
+                  callbacks: {
+                    label: function(context) {
+                      const activity = activities[context.dataIndex];
+                      const lines = [
+                        `Duration: ${formatDuration(context.raw)}`,
+                        `Plant: ${activity.details.plantName}`,
+                      ];
+                      
+                      // Add trigger-specific information
+                      switch(activity.trigger) {
+                        case 'manual_button':
+                          lines.push('Triggered by: Manual Water Now');
+                          break;
+                        case 'schedule':
+                          lines.push(`Scheduled for: ${formatTime(activity.details.scheduledTime)}`);
+                          break;
+                        case 'moisture_low':
+                          lines.push(`Moisture Level: ${activity.details.moistureLevel}%`);
+                          lines.push('Triggered by: Low Moisture');
+                          break;
+                      }
+                      
+                      return lines;
+                    },
+                    title: function(tooltipItems) {
+                      const activity = activities[tooltipItems[0].dataIndex];
+                      const triggerTypes = {
+                        'manual_button': 'Manual Watering',
+                        'schedule': 'Scheduled Watering',
+                        'moisture_low': 'Automatic Watering'
+                      };
+                      return `${triggerTypes[activity.trigger]} at ${tooltipItems[0].label}`;
+                    }
+                  }
+                }
+              }
+            }
+          });
+        } catch (err) {
+          console.error('Error rendering pump timeline', err);
+          document.getElementById('pumpTimeline').parentElement.innerHTML = 
+            '<div class="text-center text-red-500">Failed to load pump activity data</div>';
+        }
+      }
+
+      // Render daily watering frequency chart
+      async function renderDailyFrequencyChart() {
+        try {
+          const resp = await fetch('/api/pump-activity/daily');
+          const data = await resp.json();
+          if (!data || !Array.isArray(data)) throw new Error('Invalid data format');
+
+          const ctx = document.getElementById('dailyFrequencyChart').getContext('2d');
+
+          // Format dates for display
+          const formatDate = (dateStr) => {
+            const date = new Date(dateStr);
+            return date.toLocaleDateString('en-US', { 
+              weekday: 'short', 
+              month: 'short', 
+              day: 'numeric' 
+            });
+          };
+
+          const chart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+              labels: data.map(item => formatDate(item.date)),
+              datasets: [
+                {
+                  label: 'Manual',
+                  data: data.map(item => item.frequency.manual || 0),
+                  backgroundColor: 'rgba(0, 255, 255, 0.7)',
+                  borderColor: 'rgba(0, 255, 255, 1)',
+                  borderWidth: 1
+                },
+                {
+                  label: 'Scheduled',
+                  data: data.map(item => item.frequency.scheduled || 0),
+                  backgroundColor: 'rgba(255, 0, 255, 0.7)',
+                  borderColor: 'rgba(255, 0, 255, 1)',
+                  borderWidth: 1
+                },
+                {
+                  label: 'Automatic',
+                  data: data.map(item => item.frequency.automatic || 0),
+                  backgroundColor: 'rgba(255, 128, 0, 0.7)',
+                  borderColor: 'rgba(255, 128, 0, 1)',
+                  borderWidth: 1
+                }
+              ]
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: {
+                title: {
+                  display: false
+                },
+                legend: {
+                  display: true,
+                  position: 'bottom',
+                  labels: {
+                    usePointStyle: true,
+                    pointStyle: 'circle'
+                  }
+                },
+                tooltip: {
+                  mode: 'index',
+                  intersect: false,
+                  callbacks: {
+                    label: function(context) {
+                      const label = context.dataset.label;
+                      const value = context.raw;
+                      return `${label}: ${value} watering${value !== 1 ? 's' : ''}`;
+                    }
+                  }
+                }
+              },
+              scales: {
+                x: {
+                  stacked: true,
+                  grid: {
+                    display: false
+                  }
+                },
+                y: {
+                  stacked: true,
+                  beginAtZero: true,
+                  ticks: {
+                    stepSize: 1
+                  },
+                  title: {
+                    display: true,
+                    text: 'Number of Waterings'
+                  }
+                }
+              }
+            }
+          });
+        } catch (err) {
+          console.error('Error rendering daily frequency chart:', err);
+          document.getElementById('dailyFrequencyChart').parentElement.innerHTML = 
+            '<div class="text-center text-red-500">Failed to load daily frequency data</div>';
+        }
+      }
+
+      // Render activity logs
+      async function renderActivityLogs() {
+        try {
+          const response = await fetch('/api/pump-activity');
+          const data = await response.json();
+          if (!data.success || !data.activities) throw new Error('Failed to load activity data');
+
+          const activities = data.activities;
+          const manualActivities = [];
+          const automaticActivities = [];
+          const scheduledActivities = [];
+
+          // Sort activities by mode
+          activities.forEach(activity => {
+            const activityData = {
+              timestamp: new Date(activity.startTime),
+              duration: activity.duration || 0,
+              plantName: activity.details?.plantName || 'Unknown Plant',
+              status: activity.status || 'completed',
+              moistureLevel: activity.details?.moistureLevel,
+              scheduleTime: activity.details?.scheduledTime,
+              note: activity.details?.note
+            };
+
+            switch(activity.trigger) {
+              case 'manual_button':
+                manualActivities.push(activityData);
+                break;
+              case 'moisture_low':
+                automaticActivities.push(activityData);
+                break;
+              case 'schedule':
+                scheduledActivities.push(activityData);
+                break;
+            }
+          });
+
+          // Update activity counts
+          document.getElementById('manualCount').textContent = `${manualActivities.length} activities`;
+          document.getElementById('automaticCount').textContent = `${automaticActivities.length} activities`;
+          document.getElementById('scheduledCount').textContent = `${scheduledActivities.length} activities`;
+
+          // Helper function to format time ago
+          function timeAgo(date) {
+            const seconds = Math.floor((new Date() - date) / 1000);
+            let interval = Math.floor(seconds / 31536000);
+            if (interval > 1) return interval + ' years ago';
+            interval = Math.floor(seconds / 2592000);
+            if (interval > 1) return interval + ' months ago';
+            interval = Math.floor(seconds / 86400);
+            if (interval > 1) return interval + ' days ago';
+            interval = Math.floor(seconds / 3600);
+            if (interval > 1) return interval + ' hours ago';
+            interval = Math.floor(seconds / 60);
+            if (interval > 1) return interval + ' minutes ago';
+            return Math.floor(seconds) + ' seconds ago';
+          }
+
+          // Helper function to create activity HTML
+          function createActivityHTML(activity, mode) {
+            let details = '';
+            switch(mode) {
+              case 'manual':
+                details = activity.note ? 
+                  `<p class="text-sm text-gray-500">${activity.note}</p>` : '';
+                break;
+              case 'automatic':
+                details = `<p class="text-sm text-gray-500">Moisture Level: ${activity.moistureLevel}%</p>`;
+                break;
+              case 'scheduled':
+                details = `<p class="text-sm text-gray-500">Scheduled Time: ${new Date(activity.scheduleTime).toLocaleTimeString()}</p>`;
+                break;
+            }
+
+            return `
+              <div class="activity-item">
+                <div class="flex justify-between items-start gap-4">
+                  <div>
+                    <div class="font-medium text-base mb-1">${activity.plantName}</div>
+                    <div class="text-sm text-gray-500 flex items-center gap-2">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      ${timeAgo(activity.timestamp)}
+                    </div>
+                  </div>
+                  <span class="status-badge ${activity.status === 'completed' ? 'completed' : 'pending'}">
+                    ${activity.status}
+                  </span>
+                </div>
+                
+                <div class="mt-3 space-y-2">
+                  <div class="flex items-center gap-2 text-sm">
+                    <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    Duration: ${activity.duration} minutes
+                  </div>
+                  ${details ? `<div class="text-sm text-gray-600 dark:text-gray-300">${details}</div>` : ''}
+                </div>
+
+                ${mode === 'automatic' ? `
+                  <div class="mt-2 flex items-center gap-2">
+                    <div class="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-1.5">
+                      <div class="bg-orange-400 h-1.5 rounded-full" style="width: ${activity.moistureLevel}%"></div>
+                    </div>
+                    <span class="text-xs font-medium">${activity.moistureLevel}%</span>
+                  </div>
+                ` : ''}
+              </div>
+            `;
+          }
+
+          // Populate activity logs
+          document.getElementById('manualActivityLog').innerHTML = 
+            manualActivities.slice(0, 10).map(a => createActivityHTML(a, 'manual')).join('');
+          
+          document.getElementById('automaticActivityLog').innerHTML = 
+            automaticActivities.slice(0, 10).map(a => createActivityHTML(a, 'automatic')).join('');
+          
+          document.getElementById('scheduledActivityLog').innerHTML = 
+            scheduledActivities.slice(0, 10).map(a => createActivityHTML(a, 'scheduled')).join('');
+
+        } catch (error) {
+          console.error('Error rendering activity logs:', error);
+          ['manualActivityLog', 'automaticActivityLog', 'scheduledActivityLog'].forEach(id => {
+            document.getElementById(id).innerHTML = `
+              <div class="text-center text-red-500 p-4">
+                Failed to load activity data
+              </div>
+            `;
+          });
+        }
+      }
+
+      // Only run when DOM is ready
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => {
+          renderModeChart();
+          renderPumpTimeline();
+          renderDailyFrequencyChart();
+          renderActivityLogs();
+        });
+      } else {
+        renderModeChart();
+        renderPumpTimeline();
+        renderDailyFrequencyChart();
+        renderActivityLogs();
+      }
+    </script>
+  </body>
+</html>

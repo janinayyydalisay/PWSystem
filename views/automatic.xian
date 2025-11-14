@@ -1,0 +1,944 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>AquaTECHvironment — Automatic Mode</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      /* Theme system with comprehensive color palette */
+      :root {
+        /* Light theme - enhanced readability */
+        --theme-bg: 248, 250, 252;
+        --theme-bg-secondary: 241, 245, 249;
+        --theme-text: 15, 23, 42;  /* Darker text for better contrast */
+        --theme-text-secondary: 51, 65, 85;
+        
+        /* Rich colors with better contrast for light theme */
+        --theme-green: 20, 83, 45;      /* Forest green */
+        --theme-blue: 29, 78, 216;      /* Royal blue */
+        --theme-orange: 194, 65, 12;    /* Burnt orange */
+        --theme-violet: 109, 40, 217;   /* Deep violet */
+        --theme-pink: 190, 24, 93;      /* Rich pink */
+        --theme-red: 185, 28, 28;       /* Deep red */
+        
+        /* Card and overlay colors */
+        --theme-card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+        --theme-overlay: 255, 255, 255, 0.9;
+        --theme-success: 16, 185, 129;
+        --theme-success-light: 167, 243, 208;
+        --theme-border: 229, 231, 235;
+        --theme-card: 255, 255, 255;
+        --theme-card-hover: 243, 244, 246;
+        --theme-shadow: 0, 0, 0;
+      }
+      
+      [data-theme="dark"] {
+        /* Dark theme - lighter vibrant colors */
+        --theme-bg: 17, 24, 39;
+        --theme-bg-secondary: 31, 41, 55;
+        --theme-text: 243, 244, 246;    /* Light gray text */
+        --theme-text-secondary: 156, 163, 175;
+        
+        /* Light vibrant colors for dark theme */
+        --theme-green: 134, 239, 172;    /* Light green */
+        --theme-blue: 147, 197, 253;     /* Light blue */
+        --theme-orange: 253, 186, 116;   /* Light orange */
+        --theme-violet: 216, 180, 254;   /* Light violet */
+        --theme-pink: 251, 207, 232;     /* Light pink */
+        --theme-red: 252, 165, 165;      /* Light red */
+        --theme-success: 52, 211, 153;
+        --theme-success-light: 4, 120, 87;
+        --theme-border: 55, 65, 81;
+        --theme-card: 31, 41, 55;
+        --theme-card-hover: 55, 65, 81;
+        --theme-shadow: 0, 0, 0;
+      }
+
+      /* Enhanced theme utility classes */
+      .theme-bg { 
+        background-color: rgb(var(--theme-bg));
+        transition: background-color 0.3s ease;
+      }
+      .theme-bg-secondary { 
+        background-color: rgb(var(--theme-bg-secondary));
+        transition: background-color 0.3s ease;
+      }
+      .theme-text { 
+        color: rgb(var(--theme-text));
+        transition: color 0.3s ease;
+      }
+      .theme-text-secondary { 
+        color: rgb(var(--theme-text-secondary));
+        transition: color 0.3s ease;
+      }
+      .theme-border { 
+        border-color: rgb(var(--theme-border));
+        transition: border-color 0.3s ease;
+      }
+
+      /* Table Animations */
+      @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+
+      .table-row-animation {
+        animation: fadeIn 0.3s ease-out forwards;
+      }
+
+      /* Loading animation */
+      @keyframes shimmer {
+        0% { background-position: -200% 0; }
+        100% { background-position: 200% 0; }
+      }
+
+      .loading-shimmer {
+        background: linear-gradient(90deg, 
+          rgba(var(--theme-bg-secondary), 0.6) 25%, 
+          rgba(var(--theme-bg-secondary), 0.8) 50%, 
+          rgba(var(--theme-bg-secondary), 0.6) 75%);
+        background-size: 200% 100%;
+        animation: shimmer 1.5s infinite;
+      }
+
+      /* Toast animation */
+      @keyframes slideIn {
+        from { transform: translateY(100%); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+      }
+
+      .toast-animation {
+        animation: slideIn 0.3s ease-out forwards;
+      }
+
+      /* Button hover effects */
+      .hover-effect {
+        transition: all 0.2s ease;
+      }
+      
+      .hover-effect:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 6px -1px rgba(var(--theme-shadow), 0.1),
+                   0 2px 4px -1px rgba(var(--theme-shadow), 0.06);
+      }
+    /* Image Modal Styles */
+      .modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(0, 0, 0, 0.75);
+        display: none;
+        justify-content: center;
+        align-items: center;
+        z-index: 50;
+        backdrop-filter: blur(5px);
+      }
+
+      .modal.show {
+        display: flex;
+        animation: modalFadeIn 0.3s ease-out;
+      }
+
+      @keyframes modalFadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+      }
+
+      .modal-content {
+        position: relative;
+        max-width: 90vw;
+        max-height: 90vh;
+        border-radius: 1rem;
+        overflow: hidden;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+      }
+
+      .modal-image {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        transform-origin: center;
+        transition: transform 0.3s ease;
+      }
+
+      .modal-controls {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        display: flex;
+        gap: 0.5rem;
+      }
+
+      .modal-button {
+        border: none;
+        border-radius: 0.5rem;
+        width: 2.5rem;
+        height: 2.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        backdrop-filter: blur(4px);
+      }
+
+      #zoomInButton {
+        background-color: rgba(16, 185, 129, 0.9); /* Emerald green */
+        color: white;
+      }
+
+      #zoomOutButton {
+        background-color: rgba(14, 165, 233, 0.9); /* Sky blue */
+        color: white;
+      }
+
+      #closeModal {
+        background-color: rgba(239, 68, 68, 0.9); /* Red */
+        color: white;
+      }
+
+      .modal-button:hover {
+        transform: translateY(-1px);
+        filter: brightness(110%);
+      }
+
+      .zoom-label {
+        position: absolute;
+        bottom: 1rem;
+        left: 50%;
+        transform: translateX(-50%);
+        background-color: rgba(0, 0, 0, 0.75);
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 0.5rem;
+        font-size: 0.875rem;
+        backdrop-filter: blur(4px);
+        opacity: 0;
+        transition: opacity 0.2s ease;
+      }
+
+      .zoom-label.show {
+        opacity: 1;
+      }
+    </style>
+  </head>
+  <body class="antialiased theme-bg theme-text min-h-screen">
+    <!-- Image Modal -->
+    <div id="imageModal" class="modal">
+      <div class="modal-content">
+        <img id="modalImage" class="modal-image" src="" alt="Plant Image">
+        <div class="modal-controls">
+          <button class="modal-button" id="zoomInButton" title="Zoom In">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v6m3-3H7" />
+            </svg>
+          </button>
+          <button class="modal-button" id="zoomOutButton" title="Zoom Out">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM7 10h6" />
+            </svg>
+          </button>
+          <button class="modal-button" id="closeModal" title="Close">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+        <div id="zoomLabel" class="zoom-label">100%</div>
+      </div>
+    </div>
+    <header class="theme-bg shadow-sm sticky top-0 z-50 theme-transition border-b theme-border">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3">
+        <div class="flex items-center justify-between">
+          <!-- Logo and Brand -->
+          <a href="/" class="flex items-center gap-3 group">
+            <div class="relative w-11 h-11 rounded-xl bg-gradient-to-br from-sky-600 to-emerald-400 flex items-center justify-center overflow-hidden">
+              <svg class="w-6 h-6 text-white" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 19V5M12 5C12 5 9 8 7 11M12 5C12 5 15 8 17 11" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                <path d="M6 19h12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+            </div>
+            <div class="transform transition group-hover:scale-[1.01]">
+              <div class="font-bold text-lg">AquaTECHvironment</div>
+              <div class="text-xs opacity-75">Technology • Environment</div>
+            </div>
+          </a>
+
+          <!-- Navigation -->
+          <nav class="hidden md:flex items-center gap-8">
+            <a href="/" class="nav-link font-medium text-sm theme-transition hover:text-sky-600" data-tippy-content="Home">Home</a>
+            <a href="/dashboard" class="nav-link font-medium text-sm theme-transition hover:text-sky-600" data-tippy-content="View Dashboard">Dashboard</a>
+            <a href="/analytics" class="nav-link font-medium text-sm theme-transition hover:text-sky-600" data-tippy-content="View Analytics">Analytics</a>
+            
+            <!-- Mode Navigation -->
+            <div class="flex items-center gap-4">
+              <a href="/manual" class="mode-button manual px-4 py-2 rounded-lg text-sm font-medium" data-tippy-content="Manual Mode">
+                🖐️ Manual
+              </a>
+              <a href="/automatic" class="mode-button automatic px-4 py-2 rounded-lg text-sm font-medium bg-orange-500 text-white" data-tippy-content="Automatic Mode">
+                ⚙️ Auto
+              </a>
+              <a href="/scheduled" class="mode-button scheduled px-4 py-2 rounded-lg text-sm font-medium" data-tippy-content="Scheduled Mode">
+                ⏰ Schedule
+              </a>
+            </div>
+
+            <!-- Theme Toggle -->
+            <button id="theme-toggle" class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 theme-transition" data-tippy-content="Toggle Theme">
+              <svg class="w-5 h-5 theme-text" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" class="dark:hidden"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707" class="hidden dark:inline-block"/>
+              </svg>
+            </button>
+          </nav>
+        </div>
+      </div>
+    </header>    <main class="max-w-7xl mx-auto px-6 py-10">
+      <div class="h-screen flex flex-col">
+        <div class="flex items-center justify-between mb-6 flex-shrink-0">
+          <h1 class="text-2xl font-semibold theme-text">Automatic Watering Control</h1>
+          <div class="flex items-center gap-4">
+            <!-- Search Input with Results Counter -->
+            <div class="flex items-center gap-2">
+              <!-- Search Results Counter -->
+              <div id="search-results" class="hidden animate-fade-in">
+                <div class="relative group">
+                  <!-- Animated gradient background -->
+                  <div class="absolute -inset-[1px] bg-gradient-to-r from-sky-500 via-emerald-500 to-sky-500 rounded-lg opacity-0 
+                              group-hover:opacity-100 blur-sm transition-opacity duration-500 animate-gradient-x"></div>
+                  
+                  <!-- Animated glow effect -->
+                  <div class="absolute -inset-[2px] bg-gradient-to-r from-sky-500/50 to-emerald-500/50 rounded-lg opacity-0 
+                              group-hover:opacity-30 blur-xl transition-opacity duration-500 animate-pulse-slow"></div>
+
+                  <div class="relative px-4 py-2 rounded-lg bg-gray-900/90 backdrop-blur-xl border border-white/10 
+                              shadow-[0_0_15px_rgba(0,0,0,0.2)] group-hover:border-white/20 transition-all duration-300">
+                    <div class="flex items-center gap-2 text-sm whitespace-nowrap">
+                      <span id="results-icon" class="flex-shrink-0 animate-bounce-subtle">
+                        <!-- Icon will be injected by JS -->
+                      </span>
+                      <span id="results-text" class="text-gray-300 animate-text-glow">
+                        <!-- Text will be injected by JS -->
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <style>
+                @keyframes gradient-x {
+                  0%, 100% { background-position: 0% 50%; }
+                  50% { background-position: 100% 50%; }
+                }
+                @keyframes bounce-subtle {
+                  0%, 100% { transform: translateY(0); }
+                  50% { transform: translateY(-2px); }
+                }
+                @keyframes text-glow {
+                  0%, 100% { text-shadow: 0 0 8px rgba(56, 189, 248, 0.3); }
+                  50% { text-shadow: 0 0 16px rgba(56, 189, 248, 0.6); }
+                }
+                @keyframes pulse-slow {
+                  0%, 100% { opacity: 0.2; }
+                  50% { opacity: 0.4; }
+                }
+                @keyframes fade-in {
+                  from { opacity: 0; transform: translateX(-10px); }
+                  to { opacity: 1; transform: translateX(0); }
+                }
+                .animate-gradient-x {
+                  animation: gradient-x 3s linear infinite;
+                  background-size: 200% 200%;
+                }
+                .animate-bounce-subtle {
+                  animation: bounce-subtle 2s ease-in-out infinite;
+                }
+                .animate-text-glow {
+                  animation: text-glow 2s ease-in-out infinite;
+                }
+                .animate-pulse-slow {
+                  animation: pulse-slow 3s ease-in-out infinite;
+                }
+                .animate-fade-in {
+                  animation: fade-in 0.3s ease-out forwards;
+                }
+              </style>
+
+              <div class="relative">
+                <input
+                  type="text"
+                  id="search-input"
+                  placeholder="Search plants..."
+                  class="w-72 px-4 py-2.5 pr-10 bg-white/5 backdrop-blur-xl text-white border border-white/10 rounded-lg 
+                        placeholder-gray-400 focus:border-sky-500/50 focus:ring-1 focus:ring-sky-500/50 transition duration-300
+                        group-hover:border-white/20"
+                />
+                <div class="absolute right-3 top-2.5 flex items-center gap-2">
+                  <div id="search-spinner" class="hidden">
+                    <svg class="animate-spin h-5 w-5 text-sky-500" fill="none" viewBox="0 0 24 24">
+                      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                  </div>
+                  <svg id="search-icon" class="w-5 h-5 text-gray-400 transition-colors duration-300 group-hover:text-sky-400" 
+                       fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                          d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex-1 min-h-0 theme-bg-secondary shadow rounded-lg border theme-border flex flex-col">
+          <div class="overflow-auto">
+            <table class="min-w-full divide-y theme-border" id="plants-table">
+              <thead class="theme-bg sticky top-0 z-10">
+                <tr>
+                  <th class="px-6 py-3 text-left text-xs font-medium theme-text-secondary uppercase">ID</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium theme-text-secondary uppercase">Image</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium theme-text-secondary uppercase">Name</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium theme-text-secondary uppercase">Description</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium theme-text-secondary uppercase">Moisture Level</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium theme-text-secondary uppercase">Last Check</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium theme-text-secondary uppercase">Status</th>
+                  <th class="px-6 py-3 text-right text-xs font-medium theme-text-secondary uppercase">Actions</th>
+                </tr>
+              </thead>
+              <tbody class="theme-bg divide-y theme-border" id="plants-tbody">
+                <!-- rows populated by JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Activity Log Section -->
+        <div class="mt-8 bg-white dark:bg-gray-800 rounded-xl p-6 border theme-border shadow-sm">
+          <h2 class="text-lg font-semibold mb-4 flex items-center gap-2">
+            <svg class="w-5 h-5 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+            </svg>
+            Automatic Mode Activity Log
+          </h2>
+          <div id="automaticActivityLog" class="space-y-3 max-h-[400px] overflow-y-auto custom-scrollbar pr-2 relative">
+            <div class="absolute inset-x-0 top-0 h-6 bg-gradient-to-b from-white dark:from-gray-800 to-transparent pointer-events-none z-10"></div>
+            <div class="absolute inset-x-0 bottom-0 h-6 bg-gradient-to-t from-white dark:from-gray-800 to-transparent pointer-events-none z-10"></div>
+            <!-- Activities will be populated here -->
+          </div>
+        </div>
+
+        <!-- Pagination -->
+        <div class="mt-4 flex items-center justify-between flex-shrink-0">
+          <div class="flex items-center gap-2 theme-text-secondary text-sm">
+            <span>Rows per page:</span>
+            <select id="page-size" class="theme-bg theme-text theme-border border rounded px-2 py-1">
+              <option value="10">10</option>
+              <option value="25">25</option>
+              <option value="50">50</option>
+            </select>
+          </div>
+          <div class="flex items-center gap-4">
+            <span class="theme-text-secondary text-sm">
+              Page <span id="current-page">1</span> of <span id="total-pages">1</span>
+            </span>
+            <div class="flex gap-2">
+              <button id="prev-page" class="px-3 py-1 theme-border border rounded theme-text hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                </svg>
+              </button>
+              <button id="next-page" class="px-3 py-1 theme-border border rounded theme-text hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Toast Notification -->
+        <div id="toast" class="fixed bottom-4 right-4 transform translate-y-full opacity-0 transition-all duration-300"></div>
+      </div>
+    </main>
+
+    <script>
+      // Image Modal Functionality
+      let currentZoom = 1;
+      const ZOOM_STEP = 0.1;
+      const MAX_ZOOM = 3;
+      const MIN_ZOOM = 0.5;
+
+      const modal = document.getElementById('imageModal');
+      const modalImage = document.getElementById('modalImage');
+      const closeModal = document.getElementById('closeModal');
+      const zoomInButton = document.getElementById('zoomInButton');
+      const zoomOutButton = document.getElementById('zoomOutButton');
+      const zoomLabel = document.getElementById('zoomLabel');
+
+      function showImageModal(imageSrc) {
+        modal.classList.add('show');
+        modalImage.src = imageSrc;
+        currentZoom = 1;
+        updateZoom();
+        document.body.style.overflow = 'hidden';
+      }
+
+      function closeImageModal() {
+        modal.classList.remove('show');
+        modalImage.src = '';
+        document.body.style.overflow = '';
+      }
+
+      function updateZoom() {
+        modalImage.style.transform = `scale(${currentZoom})`;
+        zoomLabel.textContent = `${Math.round(currentZoom * 100)}%`;
+        zoomLabel.classList.add('show');
+        clearTimeout(zoomLabel.timeout);
+        zoomLabel.timeout = setTimeout(() => zoomLabel.classList.remove('show'), 1500);
+      }
+
+      function zoomIn() {
+        if (currentZoom < MAX_ZOOM) {
+          currentZoom = Math.min(currentZoom + ZOOM_STEP, MAX_ZOOM);
+          updateZoom();
+        }
+      }
+
+      function zoomOut() {
+        if (currentZoom > MIN_ZOOM) {
+          currentZoom = Math.max(currentZoom - ZOOM_STEP, MIN_ZOOM);
+          updateZoom();
+        }
+      }
+
+      // Event Listeners for Modal
+      closeModal.addEventListener('click', closeImageModal);
+      zoomInButton.addEventListener('click', zoomIn);
+      zoomOutButton.addEventListener('click', zoomOut);
+
+      // Close modal when clicking outside the image
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+          closeImageModal();
+        }
+      });
+
+      // Keyboard controls
+      document.addEventListener('keydown', (e) => {
+        if (!modal.classList.contains('show')) return;
+        
+        switch (e.key) {
+          case 'Escape':
+            closeImageModal();
+            break;
+          case '+':
+          case '=':
+            zoomIn();
+            break;
+          case '-':
+            zoomOut();
+            break;
+        }
+      });
+
+      // Mouse wheel zoom
+      modalImage.addEventListener('wheel', (e) => {
+        e.preventDefault();
+        if (e.deltaY < 0) {
+          zoomIn();
+        } else {
+          zoomOut();
+        }
+      });
+
+      // Theme system
+      let currentPage = 1;
+      let pageSize = 10;
+      let totalPages = 1;
+      let searchTerm = '';
+      let debounceTimeout;
+      
+      // Search results elements
+      const searchResults = document.getElementById('search-results');
+      const searchSpinner = document.getElementById('search-spinner');
+      const searchIcon = document.getElementById('search-icon');
+      
+      function updateSearchResults(count) {
+        const resultsIcon = document.getElementById('results-icon');
+        const resultsText = document.getElementById('results-text');
+        const searchResults = document.getElementById('search-results');
+        
+        if (!searchTerm) {
+          searchResults.classList.add('hidden');
+          return;
+        }
+
+        // Hide first to trigger animation
+        searchResults.classList.add('hidden');
+        
+        // Force repaint to trigger animation
+        void searchResults.offsetWidth;
+        
+        // Show results counter with animation
+        searchResults.classList.remove('hidden');
+        
+        // Update icon and text based on results
+        if (count === 0) {
+          resultsIcon.innerHTML = `
+            <svg class="w-5 h-5 text-red-400 drop-shadow-[0_0_8px_rgba(248,113,113,0.5)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                    d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>`;
+          resultsText.innerHTML = `No matches found for "<span class="text-red-400 font-medium drop-shadow-[0_0_8px_rgba(248,113,113,0.3)]">${searchTerm}</span>"`;
+        } else {
+          resultsIcon.innerHTML = `
+            <svg class="w-5 h-5 text-emerald-400 drop-shadow-[0_0_8px_rgba(52,211,153,0.5)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>`;
+          resultsText.innerHTML = `Found <span class="text-emerald-400 font-semibold drop-shadow-[0_0_8px_rgba(52,211,153,0.3)]">${count}</span> ${count === 1 ? 'match' : 'matches'} for "<span class="text-sky-400 font-medium drop-shadow-[0_0_8px_rgba(56,189,248,0.3)]">${searchTerm}</span>"`;
+        }
+      }
+      
+      async function loadPlants(page = 1, size = 10, search = '') {
+        try {
+          const response = await fetch(`/api/plants?limit=${size}&offset=${(page-1)*size}&search=${search}&mode=automatic`);
+          const data = await response.json();
+          if (data.success) {
+            // Filter for only automatic mode plants (those with a- prefix)
+            const automaticPlants = data.plants.filter(plant => plant.uniqueId?.startsWith('a-'));
+            renderPlants(automaticPlants);
+            totalPages = Math.ceil(automaticPlants.length / size);
+            updatePagination();
+            
+            // Update search results counter
+            searchSpinner.classList.add('hidden');
+            searchIcon.classList.remove('hidden');
+            updateSearchResults(automaticPlants.length);
+          }
+        } catch (error) {
+          showToast('Error loading plants: ' + error.message, 'error');
+        }
+      }
+
+      function formatDate(dateStr) {
+        if (!dateStr) return 'Never';
+        return new Date(dateStr).toLocaleString('en-US', {
+          month: 'short',
+          day: 'numeric',
+          hour: 'numeric',
+          minute: 'numeric'
+        });
+      }
+
+      function renderPlants(plants) {
+        const tbody = document.getElementById('plants-tbody');
+        tbody.innerHTML = plants.map(plant => `
+          <tr class="table-row-animation hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+            <td class="px-6 py-4 whitespace-nowrap theme-text">
+              ${plant.uniqueId || ''}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap theme-text">
+              <div class="relative w-16 h-16 rounded-lg border theme-border overflow-hidden bg-gray-50 dark:bg-gray-800 hover-effect cursor-pointer group"
+                   onclick="showImageModal('${plant.image || '/images/default-plant.png'}')">
+                <img src="${plant.image || '/images/default-plant.png'}" alt="${plant.name}" 
+                     class="w-full h-full object-cover transition-transform group-hover:scale-110"
+                     onerror="this.src='/images/default-plant.png'; this.onerror=null;">
+                <div class="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100">
+                  <svg class="w-6 h-6 text-white transform scale-0 group-hover:scale-100 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v6m3-3H7" />
+                  </svg>
+                </div>
+              </div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <div class="font-medium theme-text">${plant.name}</div>
+              <div class="text-sm theme-text-secondary">Automatic Mode</div>
+            </td>
+            <td class="px-6 py-4 theme-text">${plant.description || 'No description'}</td>
+            <td class="px-6 py-4">
+              <div class="flex items-center gap-2">
+                <div class="w-24 h-2 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden">
+                  <div class="h-full bg-sky-500 transition-all" style="width: ${plant.currentMoisture || 0}%"></div>
+                </div>
+                <span class="text-sm theme-text">${plant.currentMoisture || 0}%</span>
+              </div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap theme-text">
+              ${formatDate(plant.lastCheck || plant.updatedAt)}
+            </td>
+            <td class="px-6 py-4">
+              <span class="px-3 py-1 text-xs rounded-full inline-flex items-center gap-1 ${
+                plant.status === 'watering' 
+                  ? 'bg-sky-100 text-sky-700 dark:bg-sky-900/50 dark:text-sky-300'
+                  : plant.status === 'monitoring'
+                  ? 'bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-300'
+                  : 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300'
+              }">
+                <span class="h-1.5 w-1.5 rounded-full ${
+                  plant.status === 'watering' 
+                    ? 'bg-sky-500 animate-pulse'
+                    : plant.status === 'monitoring'
+                    ? 'bg-green-500 animate-pulse'
+                    : 'bg-gray-500'
+                }"></span>
+                ${plant.status || 'idle'}
+              </span>
+            </td>
+            <td class="px-6 py-4 text-right">
+              <button 
+                onclick="toggleAutomatic('${plant.id}')"
+                class="auto-toggle-btn hover-effect px-4 py-2 ${plant.status === 'monitoring' ? 'bg-red-500 hover:bg-red-600' : 'bg-green-500 hover:bg-green-600'} text-white rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                ${plant.status === 'watering' ? 'disabled' : ''}>
+                ${plant.status === 'monitoring' ? 'Stop Monitoring' : 'Start Monitoring'}
+              </button>
+            </td>
+          </tr>
+        `).join('');
+      }
+
+      async function toggleAutomatic(id) {
+        try {
+          const button = event.target;
+          const isMonitoring = button.textContent.includes('Stop');
+          button.disabled = true;
+
+          const response = await fetch(`/api/plants/${id}/automatic`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ monitoring: !isMonitoring })
+          });
+          const data = await response.json();
+          
+          if (data.success) {
+            showToast(isMonitoring ? 'Monitoring stopped' : 'Monitoring started');
+            loadPlants(currentPage, pageSize);
+          } else {
+            throw new Error(data.error);
+          }
+        } catch (error) {
+          showToast('Error: ' + error.message, 'error');
+          button.disabled = false;
+        }
+      }
+
+      function updatePagination() {
+        document.getElementById('current-page').textContent = currentPage;
+        document.getElementById('total-pages').textContent = totalPages;
+        document.getElementById('prev-page').disabled = currentPage === 1;
+        document.getElementById('next-page').disabled = currentPage === totalPages;
+      }
+
+      function showToast(message, type = 'success') {
+        const toast = document.getElementById('toast');
+        toast.textContent = message;
+        toast.className = `fixed bottom-4 right-4 px-6 py-3 rounded-lg shadow-lg transform transition-all duration-300 ${
+          type === 'success' ? 'bg-green-500 text-white' : 'bg-red-500 text-white'
+        }`;
+        toast.classList.remove('translate-y-full', 'opacity-0');
+        setTimeout(() => {
+          toast.classList.add('translate-y-full', 'opacity-0');
+        }, 3000);
+      }
+
+      // Event Listeners
+      document.getElementById('page-size').addEventListener('change', (e) => {
+        pageSize = parseInt(e.target.value);
+        currentPage = 1;
+        loadPlants(currentPage, pageSize);
+      });
+
+      document.getElementById('prev-page').addEventListener('click', () => {
+        if (currentPage > 1) {
+          currentPage--;
+          loadPlants(currentPage, pageSize);
+        }
+      });
+
+      document.getElementById('next-page').addEventListener('click', () => {
+        if (currentPage < totalPages) {
+          currentPage++;
+          loadPlants(currentPage, pageSize);
+        }
+      });
+
+      document.getElementById('search-input').addEventListener('input', (e) => {
+        clearTimeout(debounceTimeout);
+        
+        // Show loading state immediately
+        if (e.target.value) {
+          searchSpinner.classList.remove('hidden');
+          searchIcon.classList.add('hidden');
+        } else {
+          searchSpinner.classList.add('hidden');
+          searchIcon.classList.remove('hidden');
+          searchResults.classList.add('hidden');
+        }
+        
+        debounceTimeout = setTimeout(() => {
+          searchTerm = e.target.value;
+          currentPage = 1;
+          loadPlants(currentPage, pageSize, searchTerm);
+        }, 300);
+      });
+
+      // Activity Log functionality
+      async function loadActivities() {
+        try {
+          const response = await fetch('/api/pump-activity?mode=automatic');
+          const data = await response.json();
+          
+          if (data.success && data.activities) {
+            renderActivities(data.activities);
+          }
+        } catch (error) {
+          console.error('Error loading activities:', error);
+          document.getElementById('automaticActivityLog').innerHTML = `
+            <div class="text-center text-red-500 p-4">
+              Failed to load activity data
+            </div>
+          `;
+        }
+      }
+
+      function renderActivities(activities) {
+        const container = document.getElementById('automaticActivityLog');
+        const html = activities.map(activity => {
+          const config = {
+            'ON': {
+              bgClass: 'bg-green-100 dark:bg-green-900/30',
+              textClass: 'text-green-800 dark:text-green-200',
+              borderClass: 'border-green-200/50 dark:border-green-700/30',
+              iconClass: 'text-green-500',
+              icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />'
+            },
+            'OFF': {
+              bgClass: 'bg-red-100 dark:bg-red-900/30',
+              textClass: 'text-red-800 dark:text-red-200',
+              borderClass: 'border-red-200/50 dark:border-red-700/30',
+              iconClass: 'text-red-500',
+              icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />'
+            }
+          }[activity.details?.status || 'OFF'];
+
+          return `
+            <div class="flex items-center justify-between p-3 bg-gradient-to-r from-orange-50/80 to-transparent dark:from-orange-900/20 dark:to-transparent rounded-lg border theme-border hover:shadow-sm transition-all duration-200 group">
+              <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-full ${config.bgClass} ${config.borderClass} border flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform duration-200">
+                  <svg class="w-4 h-4 ${config.iconClass}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    ${config.icon}
+                  </svg>
+                </div>
+                <div>
+                  <h4 class="text-sm font-medium flex items-center gap-2">
+                    ${activity.details?.plantName || 'Unknown Plant'}
+                    <span class="px-2 py-0.5 rounded-full text-[10px] uppercase tracking-wider font-semibold ${config.bgClass} ${config.textClass} ${config.borderClass} border">
+                      ${activity.details?.status || 'OFF'}
+                    </span>
+                  </h4>
+                  <p class="text-xs text-gray-500 dark:text-gray-400">
+                    ${new Date(activity.startTime).toLocaleString()}
+                  </p>
+                  ${activity.duration ? `
+                    <p class="text-xs text-gray-500 mt-1">
+                      <span class="font-medium">Duration:</span> ${activity.duration} minutes
+                    </p>
+                  ` : ''}
+                  ${activity.details?.moistureLevel ? `
+                    <div class="mt-2 flex items-center gap-2">
+                      <div class="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-1.5">
+                        <div class="bg-orange-400 h-1.5 rounded-full" style="width: ${activity.details.moistureLevel}%"></div>
+                      </div>
+                      <span class="text-xs font-medium">${activity.details.moistureLevel}%</span>
+                    </div>
+                  ` : ''}
+                </div>
+              </div>
+            </div>
+          `;
+        }).join('') || `
+          <div class="text-center py-8 text-gray-500 dark:text-gray-400">
+            <p>No activities recorded yet</p>
+          </div>
+        `;
+
+        container.innerHTML = html;
+      }
+
+      // Initial load
+      loadPlants(currentPage, pageSize);
+      loadActivities();
+
+      // Refresh activities every 30 seconds
+      setInterval(loadActivities, 30000);
+
+      // Theme System
+      function initializeTheme() {
+        const themeToggle = document.getElementById('theme-toggle');
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const savedTheme = localStorage.getItem('theme');
+        
+        function setTheme(isDark) {
+          document.documentElement.dataset.theme = isDark ? 'dark' : 'light';
+          localStorage.setItem('theme', isDark ? 'dark' : 'light');
+          
+          // Update tooltips theme
+          if (window.tippy) {
+            document.querySelectorAll('[data-tippy-root]').forEach(tooltip => {
+              tooltip._tippy.setProps({
+                theme: isDark ? 'dark' : 'light'
+              });
+            });
+          }
+        }
+
+        // Set initial theme
+        if (savedTheme) {
+          setTheme(savedTheme === 'dark');
+        } else {
+          setTheme(prefersDark);
+        }
+
+        // Theme toggle button
+        themeToggle.addEventListener('click', () => {
+          const isDark = document.documentElement.dataset.theme === 'dark';
+          setTheme(!isDark);
+        });
+
+        // Listen for system theme changes
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+          if (!localStorage.getItem('theme')) {
+            setTheme(e.matches);
+          }
+        });
+
+        // Listen for theme changes from other pages
+        window.addEventListener('storage', (e) => {
+          if (e.key === 'theme') {
+            setTheme(e.newValue === 'dark');
+          }
+        });
+      }
+
+      // Initialize all components
+      document.addEventListener('DOMContentLoaded', () => {
+        initializeTheme();
+      });
+
+      // Mobile menu
+      const mobileMenuButton = document.getElementById('mobile-menu-button');
+      const mobileMenu = document.getElementById('mobile-menu');
+      
+      mobileMenuButton.addEventListener('click', () => {
+        mobileMenu.classList.toggle('hidden');
+      });
+    </script>
+  </body>
+</html>

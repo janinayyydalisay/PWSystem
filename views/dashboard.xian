@@ -1,0 +1,2159 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Analytics — AquaTECHvironment</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/@popperjs/core@2"></script>
+    <script src="https://unpkg.com/tippy.js@6"></script>
+    <link rel="stylesheet" href="https://unpkg.com/tippy.js@6/themes/light.css">
+    <style>
+      /* Theme system with comprehensive color palette */
+      :root {
+        /* Light theme - enhanced readability */
+        --theme-bg: 248, 250, 252;
+        --theme-bg-secondary: 241, 245, 249;
+        --theme-text: 15, 23, 42;  /* Darker text for better contrast */
+        --theme-text-secondary: 51, 65, 85;
+        
+        /* Rich colors with better contrast for light theme */
+        --theme-green: 16, 185, 129;    /* Teal green */
+        --theme-blue: 59, 130, 246;     /* Bright blue */
+        --theme-orange: 245, 158, 11;   /* Amber */
+        --theme-violet: 124, 58, 237;   /* Bright violet */
+        --theme-pink: 236, 72, 153;     /* Hot pink */
+        --theme-red: 239, 68, 68;       /* Bright red */
+        
+        /* Card and overlay colors */
+        --theme-card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+        --theme-overlay: 255, 255, 255, 0.9;
+        --theme-success: 16, 185, 129;
+        --theme-success-light: 167, 243, 208;
+        --theme-border: 229, 231, 235;
+        --theme-card: 255, 255, 255;
+        --theme-card-hover: 243, 244, 246;
+        --theme-shadow: 0, 0, 0;
+        --theme-header-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+      }
+      
+      [data-theme="dark"] {
+        /* Dark theme - lighter vibrant colors */
+        --theme-bg: 17, 24, 39;
+        --theme-bg-secondary: 31, 41, 55;
+        --theme-text: 243, 244, 246;    /* Light gray text */
+        --theme-text-secondary: 156, 163, 175;
+        
+        /* Light vibrant colors for dark theme */
+        --theme-green: 134, 239, 172;    /* Light green */
+        --theme-blue: 147, 197, 253;     /* Light blue */
+        --theme-orange: 253, 186, 116;   /* Light orange */
+        --theme-violet: 216, 180, 254;   /* Light violet */
+        --theme-pink: 251, 207, 232;     /* Light pink */
+        --theme-red: 252, 165, 165;      /* Light red */
+        --theme-success: 52, 211, 153;
+        --theme-success-light: 4, 120, 87;
+        --theme-border: 55, 65, 81;
+        --theme-card: 31, 41, 55;
+        --theme-card-hover: 55, 65, 81;
+        --theme-shadow: 0, 0, 0;
+        --theme-header-shadow: 0 2px 4px rgba(255, 255, 255, 0.05);
+      }
+
+      /* Enhanced theme utility classes with hover effects */
+      .theme-bg { 
+        background-color: rgb(var(--theme-bg));
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+      .theme-bg-secondary { 
+        background-color: rgb(var(--theme-bg-secondary));
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+      .theme-text { 
+        color: rgb(var(--theme-text));
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+      .theme-text-secondary { 
+        color: rgb(var(--theme-text-secondary));
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+      .theme-border { 
+        border-color: rgb(var(--theme-border));
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+      
+      /* Enhanced table styles for better visibility */
+      #plants-table {
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+        border-radius: 0.5rem;
+        overflow: hidden;
+      }
+      
+      [data-theme="light"] #plants-table tbody tr {
+        background-color: white;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        transition: all 0.2s ease;
+      }
+      
+      [data-theme="light"] #plants-table tbody tr:hover {
+        background-color: rgb(249, 250, 251);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        transform: translateY(-1px);
+      }
+      
+      [data-theme="light"] .theme-text {
+        color: rgb(17, 24, 39);
+      }
+      
+      [data-theme="light"] #plants-table th {
+        background-color: rgb(249, 250, 251);
+        font-weight: 600;
+        border-bottom: 2px solid rgba(0, 0, 0, 0.1);
+        padding: 1rem;
+      }
+
+      /* Interactive elements */
+      .nav-link {
+        position: relative;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+      .nav-link:after {
+        content: '';
+        position: absolute;
+        width: 100%;
+        height: 2px;
+        bottom: -4px;
+        left: 0;
+        background-color: rgb(var(--theme-blue));
+        transform: scaleX(0);
+        transform-origin: right;
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+      .nav-link:hover:after {
+        transform: scaleX(1);
+        transform-origin: left;
+      }
+
+      /* Card hover effects */
+      .hover-lift {
+        transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+                    box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+      .hover-lift:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 24px -8px rgba(var(--theme-shadow), 0.15);
+      }
+
+      /* Button hover effects */
+      /* Enhanced table styles for light theme */
+      [data-theme="light"] #plants-table {
+        box-shadow: 0 4px 15px -3px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+      }
+
+      [data-theme="light"] #plants-table th {
+        color: rgb(31, 41, 55);
+        background-color: rgb(249, 250, 251);
+        font-weight: 600;
+        box-shadow: var(--theme-header-shadow);
+      }
+
+      [data-theme="light"] #plants-table td {
+        color: rgb(55, 65, 81);
+      }
+
+      .button-hover {
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+      .button-hover:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px -2px rgba(var(--theme-shadow), 0.12);
+      }
+      
+      /* Mode button styles */
+      .mode-button {
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        background-color: rgb(var(--theme-card));
+        border: 1px solid rgb(var(--theme-border));
+      }
+
+      .mode-button.active {
+        background-color: rgb(var(--theme-green));
+        color: white;
+        box-shadow: 0 10px 15px -3px rgba(var(--theme-shadow), 0.1);
+      }
+
+      .mode-button:hover:not(.active) {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 24px -8px rgba(var(--theme-shadow), 0.15);
+      }
+
+      .mode-button.manual {
+        border-color: rgb(var(--theme-blue));
+      }
+      .mode-button.manual.active {
+        background-color: rgb(var(--theme-blue));
+      }
+
+      .mode-button.automatic {
+        border-color: rgb(var(--theme-orange));
+      }
+      .mode-button.automatic.active {
+        background-color: rgb(var(--theme-orange));
+      }
+
+      .mode-button.scheduled {
+        border-color: rgb(var(--theme-violet));
+      }
+      .mode-button.scheduled.active {
+        background-color: rgb(var(--theme-violet));
+      }
+
+      /* Card styles */
+      .feature-card {
+        background-color: rgba(var(--theme-bg), 0.8);
+        backdrop-filter: blur(8px);
+        border: 1px solid rgba(var(--theme-border), 0.1);
+        box-shadow: var(--theme-card-shadow);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+      }
+      
+      .feature-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.05);
+      }
+
+      /* Theme transitions */
+      .theme-transition {
+        transition-property: color, background-color, border-color, box-shadow;
+        transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+        transition-duration: 200ms;
+      }
+      
+      /* Animations */
+      .fade-up { 
+        opacity: 0; 
+        transform: translateY(8px); 
+        animation: fadeUp 0.45s ease forwards; 
+      }
+      @keyframes fadeUp { 
+        to { opacity: 1; transform: none; } 
+      }
+
+      /* Enhanced Modern Notification Styles */
+      .notification {
+        position: fixed;
+        top: 1.5rem;
+        right: 1.5rem;
+        padding: 1.25rem;
+        border-radius: 1rem;
+        max-width: 28rem;
+        width: calc(100% - 3rem);
+        z-index: 100;
+        transform: translateX(100%);
+        opacity: 0;
+        animation: slideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        backdrop-filter: blur(12px);
+        overflow: hidden;
+      }
+
+      /* Light Theme Notifications */
+      [data-theme="light"] .notification {
+        background: rgba(15, 23, 42, 0.95);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 
+          0 8px 32px rgba(0, 0, 0, 0.08),
+          0 2px 8px rgba(0, 0, 0, 0.06),
+          inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+      }
+
+      [data-theme="light"] .notification.success {
+        border-left: 4px solid rgb(var(--theme-success));
+      }
+
+      [data-theme="light"] .notification.error {
+        border-left: 4px solid rgb(239, 68, 68);
+      }
+
+      [data-theme="light"] .notification.loading {
+        border-left: 4px solid rgb(var(--theme-blue));
+      }
+
+      [data-theme="light"] .notification p {
+        color: rgba(255, 255, 255, 0.95);
+      }
+
+      [data-theme="light"] .notification .text-sm {
+        color: rgba(255, 255, 255, 0.7);
+      }
+
+      /* Dark Theme Notifications */
+      [data-theme="dark"] .notification {
+        background: rgba(17, 24, 39, 0.85);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 
+          0 8px 32px rgba(0, 0, 0, 0.2),
+          0 2px 8px rgba(0, 0, 0, 0.1),
+          inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+      }
+
+      [data-theme="dark"] .notification.success {
+        background: linear-gradient(135deg, 
+          rgba(16, 185, 129, 0.15),
+          rgba(16, 185, 129, 0.05)
+        );
+        border: 1px solid rgba(16, 185, 129, 0.2);
+        box-shadow: 
+          0 8px 32px rgba(16, 185, 129, 0.15),
+          0 2px 8px rgba(16, 185, 129, 0.1),
+          inset 0 0 0 1px rgba(16, 185, 129, 0.1);
+      }
+
+      [data-theme="dark"] .notification.error {
+        background: linear-gradient(135deg, 
+          rgba(239, 68, 68, 0.15),
+          rgba(239, 68, 68, 0.05)
+        );
+        border: 1px solid rgba(239, 68, 68, 0.2);
+        box-shadow: 
+          0 8px 32px rgba(239, 68, 68, 0.15),
+          0 2px 8px rgba(239, 68, 68, 0.1),
+          inset 0 0 0 1px rgba(239, 68, 68, 0.1);
+      }
+
+      [data-theme="dark"] .notification.loading {
+        background: linear-gradient(135deg, 
+          rgba(59, 130, 246, 0.15),
+          rgba(59, 130, 246, 0.05)
+        );
+        border: 1px solid rgba(59, 130, 246, 0.2);
+        box-shadow: 
+          0 8px 32px rgba(59, 130, 246, 0.15),
+          0 2px 8px rgba(59, 130, 246, 0.1),
+          inset 0 0 0 1px rgba(59, 130, 246, 0.1);
+      }
+
+      [data-theme="dark"] .notification.success p {
+        color: rgb(167, 243, 208);
+      }
+
+      [data-theme="dark"] .notification.success .text-sm {
+        color: rgba(167, 243, 208, 0.8);
+      }
+
+      [data-theme="dark"] .notification.error p {
+        color: rgb(252, 165, 165);
+      }
+
+      [data-theme="dark"] .notification.error .text-sm {
+        color: rgba(252, 165, 165, 0.8);
+      }
+
+      [data-theme="dark"] .notification.loading p {
+        color: rgb(147, 197, 253);
+      }
+
+      [data-theme="dark"] .notification.loading .text-sm {
+        color: rgba(147, 197, 253, 0.8);
+      }
+
+      /* Modern Progress Bar Animation */
+      .notification .progress-line {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 3px;
+        overflow: hidden;
+      }
+
+      /* Light Theme Progress Line */
+      [data-theme="light"] .notification .progress-line {
+        background: rgba(255, 255, 255, 0.1);
+      }
+
+      [data-theme="light"] .notification .progress-line::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 100%;
+        width: 100%;
+        background: rgba(255, 255, 255, 0.3);
+        box-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
+      }
+
+      /* Dark Theme Progress Line */
+      [data-theme="dark"] .notification .progress-line {
+        background: rgba(255, 255, 255, 0.05);
+      }
+
+      [data-theme="dark"] .notification.success .progress-line::after {
+        background: rgba(167, 243, 208, 0.5);
+        box-shadow: 0 0 12px rgba(167, 243, 208, 0.3);
+      }
+
+      [data-theme="dark"] .notification.error .progress-line::after {
+        background: rgba(252, 165, 165, 0.5);
+        box-shadow: 0 0 12px rgba(252, 165, 165, 0.3);
+      }
+
+      [data-theme="dark"] .notification.loading .progress-line::after {
+        background: rgba(147, 197, 253, 0.5);
+        box-shadow: 0 0 12px rgba(147, 197, 253, 0.3);
+      }
+
+      .notification.loading .progress-line::after {
+        animation: progressPulse 1s ease-in-out infinite;
+      }
+
+      .notification:not(.loading) .progress-line::after {
+        animation: progress linear forwards;
+      }
+
+      @keyframes progressPulse {
+        0% {
+          transform: translateX(-100%);
+        }
+        50% {
+          transform: translateX(0);
+          width: 100%;
+        }
+        100% {
+          transform: translateX(100%);
+        }
+      }
+
+      @keyframes progress {
+        from { width: 100%; }
+        to { width: 0%; }
+      }
+
+      /* Delete Confirmation Modal */
+      .delete-modal {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.7);
+        backdrop-filter: blur(4px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 100;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+      }
+
+      .delete-modal-content {
+        background: linear-gradient(135deg, rgb(var(--theme-bg)), rgb(var(--theme-bg-secondary)));
+        border: 1px solid rgba(var(--theme-border), 0.1);
+        border-radius: 1rem;
+        padding: 1.5rem;
+        max-width: 28rem;
+        width: 90%;
+        transform: scale(0.95);
+        opacity: 0;
+        transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        box-shadow: 0 16px 32px rgba(0, 0, 0, 0.2), 0 2px 8px rgba(0, 0, 0, 0.1);
+      }
+
+      @keyframes slideIn {
+        from {
+          transform: translateX(100%);
+          opacity: 0;
+        }
+        to {
+          transform: translateX(0);
+          opacity: 1;
+        }
+      }
+
+      @keyframes slideOut {
+        from {
+          transform: translateX(0);
+          opacity: 1;
+        }
+        to {
+          transform: translateX(100%);
+          opacity: 0;
+        }
+      }
+    </style>
+  </head>
+  <body class="antialiased theme-text theme-bg theme-transition min-h-screen" data-theme="light">
+    <header class="theme-bg shadow-sm sticky top-0 z-50 theme-transition border-b theme-border">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3">
+        <div class="flex items-center justify-between">
+          <!-- Logo and Brand -->
+          <a href="/" class="flex items-center gap-3 group">
+            <div class="relative w-11 h-11 rounded-xl bg-gradient-to-br from-sky-600 to-emerald-400 flex items-center justify-center overflow-hidden">
+              <svg class="w-6 h-6 text-white" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 19V5M12 5C12 5 9 8 7 11M12 5C12 5 15 8 17 11" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                <path d="M6 19h12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+            </div>
+            <div class="transform transition group-hover:scale-[1.01]">
+              <div class="font-bold text-lg">AquaTECHvironment</div>
+              <div class="text-xs opacity-75">Technology • Environment</div>
+            </div>
+          </a>
+
+          <!-- Navigation -->
+          <nav class="hidden md:flex items-center gap-8">
+            <a href="/" class="nav-link font-medium text-sm theme-transition hover:text-sky-600" data-tippy-content="Home">Home</a>
+            <a href="/dashboard" class="nav-link font-medium text-sm theme-transition hover:text-sky-600" data-tippy-content="View Dashboard">Dashboard</a>
+            <a href="/analytics" class="nav-link font-medium text-sm theme-transition hover:text-sky-600" data-tippy-content="View Analytics">Analytics</a>
+            
+            <!-- Mode Navigation -->
+            <div class="flex items-center gap-4">
+              <a href="/manual" class="mode-button manual px-4 py-2 rounded-lg text-sm font-medium" data-tippy-content="Manual Mode">
+                🖐️ Manual
+              </a>
+              <a href="/automatic" class="mode-button automatic px-4 py-2 rounded-lg text-sm font-medium" data-tippy-content="Automatic Mode">
+                ⚙️ Auto
+              </a>
+              <a href="/scheduled" class="mode-button scheduled px-4 py-2 rounded-lg text-sm font-medium" data-tippy-content="Scheduled Mode">
+                ⏰ Schedule
+              </a>
+            </div>
+
+            <!-- Theme Toggle -->
+            <button id="theme-toggle" class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 theme-transition" data-tippy-content="Toggle Theme">
+              <svg class="w-5 h-5 theme-text" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" class="dark:hidden"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707" class="hidden dark:inline-block"/>
+              </svg>
+            </button>
+          </nav>
+        </div>
+      </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-6 py-6 h-screen flex flex-col">
+      <div class="flex items-center justify-between mb-4 flex-shrink-0">
+        <h1 class="text-2xl font-semibold theme-text">Plants</h1>
+        <div class="flex items-center gap-6">
+          <!-- Left side: Search section -->
+          <div class="flex-1 flex items-center gap-3">
+            <!-- Search Input with Results Counter -->
+            <div class="flex items-center gap-2">
+              <!-- Search Results Counter - Now left of the input with animation -->
+              <div id="search-results" class="hidden animate-fade-in">
+                <div class="relative group">
+                  <!-- Animated gradient background -->
+                  <div class="absolute -inset-[1px] bg-gradient-to-r from-sky-500 via-emerald-500 to-sky-500 rounded-lg opacity-0 
+                              group-hover:opacity-100 blur-sm transition-opacity duration-500 animate-gradient-x"></div>
+                  
+                  <!-- Animated glow effect -->
+                  <div class="absolute -inset-[2px] bg-gradient-to-r from-sky-500/50 to-emerald-500/50 rounded-lg opacity-0 
+                              group-hover:opacity-30 blur-xl transition-opacity duration-500 animate-pulse-slow"></div>
+
+                  <div class="relative px-4 py-2 rounded-lg bg-gray-900/90 backdrop-blur-xl border border-white/10 
+                              shadow-[0_0_15px_rgba(0,0,0,0.2)] group-hover:border-white/20 transition-all duration-300">
+                    <div class="flex items-center gap-2 text-sm whitespace-nowrap">
+                      <span id="results-icon" class="flex-shrink-0 animate-bounce-subtle">
+                        <!-- Icon will be injected by JS -->
+                      </span>
+                      <span id="results-text" class="text-gray-300 animate-text-glow">
+                        <!-- Text will be injected by JS -->
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <style>
+                @keyframes gradient-x {
+                  0%, 100% { background-position: 0% 50%; }
+                  50% { background-position: 100% 50%; }
+                }
+                @keyframes bounce-subtle {
+                  0%, 100% { transform: translateY(0); }
+                  50% { transform: translateY(-2px); }
+                }
+                @keyframes text-glow {
+                  0%, 100% { text-shadow: 0 0 8px rgba(56, 189, 248, 0.3); }
+                  50% { text-shadow: 0 0 16px rgba(56, 189, 248, 0.6); }
+                }
+                @keyframes pulse-slow {
+                  0%, 100% { opacity: 0.2; }
+                  50% { opacity: 0.4; }
+                }
+                @keyframes fade-in {
+                  from { opacity: 0; transform: translateX(-10px); }
+                  to { opacity: 1; transform: translateX(0); }
+                }
+                .animate-gradient-x {
+                  animation: gradient-x 3s linear infinite;
+                  background-size: 200% 200%;
+                }
+                .animate-bounce-subtle {
+                  animation: bounce-subtle 2s ease-in-out infinite;
+                }
+                .animate-text-glow {
+                  animation: text-glow 2s ease-in-out infinite;
+                }
+                .animate-pulse-slow {
+                  animation: pulse-slow 3s ease-in-out infinite;
+                }
+                .animate-fade-in {
+                  animation: fade-in 0.3s ease-out forwards;
+                }
+              </style>
+
+              <div class="relative">
+                <input
+                  type="text"
+                  id="search-input"
+                  placeholder="Search plants..."
+                  class="w-72 px-4 py-2.5 pr-10 bg-white/5 backdrop-blur-xl text-white border border-white/10 rounded-lg 
+                        placeholder-gray-400 focus:border-sky-500/50 focus:ring-1 focus:ring-sky-500/50 transition duration-300
+                        group-hover:border-white/20"
+                />
+                <div class="absolute right-3 top-2.5 flex items-center gap-2">
+                  <div id="search-spinner" class="hidden">
+                    <svg class="animate-spin h-5 w-5 text-sky-500" fill="none" viewBox="0 0 24 24">
+                      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                  </div>
+                  <svg id="search-icon" class="w-5 h-5 text-gray-400 transition-colors duration-300 group-hover:text-sky-400" 
+                       fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                          d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right side: Add Plant button -->
+          <button id="btn-add" class="flex-none px-5 py-2.5 bg-gradient-to-r from-sky-600 to-cyan-500 text-white rounded-lg hover:from-sky-700 hover:to-cyan-600 shadow-lg shadow-sky-500/30 dark:shadow-sky-800/30 button-hover flex items-center gap-2 transition-all duration-300 group font-medium ml-4">
+            <svg class="w-5 h-5 transition-transform duration-300 group-hover:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+            </svg>
+            Add Plant
+          </button>
+        </div>
+      </div>
+
+      <div class="flex-1 min-h-0 theme-bg-secondary shadow-lg dark:shadow-none rounded-lg border theme-border flex flex-col">
+        <div class="overflow-auto">
+          <table class="min-w-full divide-y theme-border" id="plants-table">
+            <thead class="theme-bg sticky top-0 shadow-sm z-10">
+              <tr>
+              <th class="px-6 py-3 text-left text-xs font-medium uppercase text-gray-700 dark:text-gray-400">ID</th>
+              <th class="px-6 py-3 text-center text-xs font-medium theme-text-secondary uppercase">Plant Image</th>
+              <th class="px-6 py-3 text-left text-xs font-medium theme-text-secondary uppercase">Name</th>
+              <th class="px-6 py-3 text-left text-xs font-medium uppercase text-gray-700 dark:text-gray-400">Description</th>
+              <th class="px-6 py-3 text-center text-xs font-medium uppercase text-gray-700 dark:text-gray-400">Mode</th>
+              <th class="px-6 py-3 text-center text-xs font-medium uppercase text-gray-700 dark:text-gray-400">Status</th>
+              <th class="px-6 py-3 text-left text-xs font-medium uppercase text-gray-700 dark:text-gray-400">Created</th>
+              <th class="px-6 py-3 text-right text-xs font-medium uppercase text-gray-700 dark:text-gray-400">Actions</th>
+            </tr>
+          </thead>
+          <tbody class="theme-bg divide-y theme-border" id="plants-tbody">
+            <!-- rows populated by JS -->
+          </tbody>
+        </table>
+        </div>
+      </div>
+
+      <!-- Pagination -->
+      <div class="mt-4 flex items-center justify-between flex-shrink-0">
+        <div class="flex items-center gap-2 theme-text-secondary text-sm">
+          <span>Rows per page:</span>
+          <select id="page-size" class="theme-bg theme-text theme-border border rounded px-2 py-1">
+            <option value="10">10</option>
+            <option value="25">25</option>
+            <option value="50">50</option>
+          </select>
+        </div>
+        <div class="flex items-center gap-4">
+          <span class="theme-text-secondary text-sm">
+            Page <span id="current-page">1</span> of <span id="total-pages">1</span>
+          </span>
+          <div class="flex gap-2">
+            <button id="prev-page" class="px-3 py-1 theme-border border rounded theme-text hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+              </svg>
+            </button>
+            <button id="next-page" class="px-3 py-1 theme-border border rounded theme-text hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Enhanced Modern Modal -->
+      <div id="modal" class="fixed inset-0 z-50 hidden">
+        <!-- Backdrop with enhanced blur effect -->
+        <div class="fixed inset-0 bg-black/60 backdrop-blur-xl transition-opacity"></div>
+        
+        <!-- Modal Container with Fixed Height -->
+        <div class="fixed inset-0 overflow-hidden">
+          <div class="flex min-h-full items-center justify-center">
+            <!-- Modal panel with modern design -->
+            <div class="relative w-full max-w-4xl h-[calc(100vh-6rem)] transform rounded-2xl bg-gradient-to-b from-gray-900/95 to-gray-800/95 
+                        shadow-2xl transition-all border border-white/10 backdrop-blur-sm flex flex-col m-3">
+              <!-- Decorative elements -->
+              <div class="absolute inset-0 overflow-hidden pointer-events-none">
+                <div class="absolute inset-0 bg-grid-white/[0.02]"></div>
+                <div class="absolute -top-48 -right-48 w-96 h-96 bg-sky-500/30 rounded-full blur-3xl"></div>
+                <div class="absolute -bottom-48 -left-48 w-96 h-96 bg-emerald-500/20 rounded-full blur-3xl"></div>
+              </div>
+
+            <!-- Modal header with modern styling -->
+            <div class="sticky top-0 z-10">
+              <div class="relative border-b border-white/10">
+                <!-- Header gradient background -->
+                <div class="absolute inset-0">
+                  <div class="absolute inset-0 bg-gradient-to-r from-sky-500/10 via-emerald-500/10 to-sky-500/10"></div>
+                  <div class="absolute inset-0 backdrop-blur-sm"></div>
+                </div>
+                
+                <!-- Header content -->
+                <div class="relative flex items-center justify-between p-6">
+                  <h2 id="modal-title" class="flex items-center gap-5">
+                    <div class="relative group">
+                      <div class="absolute -inset-1 bg-gradient-to-r from-sky-500 to-emerald-500 rounded-xl blur-lg opacity-40 group-hover:opacity-60 transition duration-300"></div>
+                      <div class="relative w-14 h-14 rounded-xl bg-gradient-to-br from-sky-500 to-emerald-400 p-3 shadow-lg ring-1 ring-white/20 transition-shadow duration-300 group-hover:shadow-sky-500/25">
+                        <svg class="w-full h-full text-white drop-shadow-lg transition-transform duration-300 group-hover:scale-110" viewBox="0 0 24 24" fill="none">
+                          <path d="M12 6v12M12 6c0 0 3 4 3 6M12 6c0 0-3 4-3 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                      </div>
+                    </div>
+                    <div class="flex flex-col">
+                      <span class="text-sm font-medium text-sky-400/90 tracking-wide">Plant Management</span>
+                      <span class="text-white text-xl font-semibold tracking-tight">Plant Details</span>
+                    </div>
+                  </h2>
+                  
+                  <button type="button" id="btn-close-modal" 
+                          class="group relative rounded-xl bg-white/5 p-2.5 transition-all duration-300">
+                    <div class="absolute inset-0 rounded-xl bg-gradient-to-br from-red-500/20 to-red-600/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    <svg class="relative w-5 h-5 text-gray-400 group-hover:text-red-400 transition-colors duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Form container with scrolling content -->
+            <form id="plant-form" class="relative flex-1 overflow-y-auto p-6 space-y-4" enctype="multipart/form-data">
+              <input type="hidden" id="plant-id" />
+              
+              <!-- Image Upload Section -->
+              <div class="mb-8">
+                <label class="block text-sm font-medium mb-3 text-gray-300">Plant Image</label>
+                <div class="flex items-start space-x-6">
+                  <div class="relative group">
+                    <div class="absolute -inset-2 bg-gradient-to-r from-sky-500/20 to-emerald-500/20 rounded-2xl blur opacity-0 group-hover:opacity-100 transition duration-300"></div>
+                    <div class="relative w-40 h-40 rounded-xl border-2 border-dashed border-white/20 flex items-center justify-center overflow-hidden bg-gray-900/50 backdrop-blur-sm group-hover:border-white/30 transition duration-300">
+                      <img id="plant-image-preview" src="/images/default-plant.png" alt="Plant Image Preview" 
+                           class="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
+                      <div id="plant-image-placeholder" class="absolute inset-0 flex flex-col items-center justify-center bg-gray-900/80 backdrop-blur-sm transition-opacity duration-300">
+                        <svg class="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                        <p class="mt-3 text-sm text-gray-400">No image selected</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="flex flex-col gap-3 pt-2">
+                    <input type="file" id="plant-image" accept="image/*" class="hidden" />
+                    <button type="button" id="btn-upload-image" 
+                            class="relative group px-4 py-2.5 rounded-lg transition-all duration-300 overflow-hidden">
+                      <div class="absolute inset-0 bg-gradient-to-r from-sky-600 to-emerald-500 transition-opacity group-hover:opacity-90"></div>
+                      <div class="relative flex items-center gap-2 text-white">
+                        <svg class="w-5 h-5 transition-transform duration-300 group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                        </svg>
+                        <span class="font-medium">Choose Image</span>
+                      </div>
+                    </button>
+
+                    <button type="button" id="btn-remove-image" 
+                            class="hidden relative group px-4 py-2.5 rounded-lg transition-all duration-300 overflow-hidden">
+                      <div class="absolute inset-0 bg-gradient-to-r from-red-500/10 to-red-600/10 group-hover:from-red-500/20 group-hover:to-red-600/20 transition-opacity"></div>
+                      <div class="relative flex items-center gap-2 text-red-400 group-hover:text-red-300">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                        <span class="font-medium">Remove Image</span>
+                      </div>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Form Grid Layout -->
+              <div class="grid grid-cols-2 gap-6">
+                <div class="space-y-6">
+                  <!-- Plant Name -->
+                  <div class="relative group">
+                    <label class="block text-sm font-medium mb-2 text-gray-300">Plant Name</label>
+                    <input id="plant-name" type="text" required
+                           class="w-full bg-gray-900/50 border border-white/10 rounded-lg px-4 py-2.5 text-white placeholder-gray-500
+                                  focus:border-sky-500/50 focus:ring-1 focus:ring-sky-500/50 transition duration-300
+                                  group-hover:border-white/20" />
+                  </div>
+
+                  <!-- Operation Mode -->
+                  <div class="relative group">
+                    <label class="block text-sm font-medium mb-2 text-gray-300">Operation Mode</label>
+                    <select id="plant-mode"
+                            class="w-full bg-gray-900/50 border border-white/10 rounded-lg px-4 py-2.5 text-white
+                                   focus:border-sky-500/50 focus:ring-1 focus:ring-sky-500/50 transition duration-300
+                                   group-hover:border-white/20">
+                      <option value="manual">Manual Operation</option>
+                      <option value="automatic">Automatic Operation</option>
+                      <option value="scheduled">Scheduled Operation</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="space-y-6">
+                  <!-- Status -->
+                  <div class="relative group">
+                    <label class="block text-sm font-medium mb-2 text-gray-300">Current Status</label>
+                    <select id="plant-status"
+                            class="w-full bg-gray-900/50 border border-white/10 rounded-lg px-4 py-2.5 text-white
+                                   focus:border-sky-500/50 focus:ring-1 focus:ring-sky-500/50 transition duration-300
+                                   group-hover:border-white/20">
+                      <option value="Unknown">Unknown</option>
+                      <option value="Healthy">Healthy</option>
+                      <option value="Needs attention">Needs Attention</option>
+                    </select>
+                  </div>
+
+                  <!-- Description -->
+                  <div class="relative group">
+                    <label class="block text-sm font-medium mb-2 text-gray-300">Description</label>
+                    <textarea id="plant-description" rows="3"
+                              class="w-full bg-gray-900/50 border border-white/10 rounded-lg px-4 py-2.5 text-white placeholder-gray-500
+                                     focus:border-sky-500/50 focus:ring-1 focus:ring-sky-500/50 transition duration-300
+                                     group-hover:border-white/20"></textarea>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Form Actions - Fixed at bottom -->
+              <div class="sticky bottom-0 left-0 right-0 bg-gray-900/95 backdrop-blur-sm border-t border-white/10 p-4 mt-4">
+                <div class="flex justify-end gap-4">
+                  <button type="button" id="btn-cancel" 
+                          class="px-6 py-2.5 rounded-lg border border-white/10 text-gray-300 hover:bg-white/5 hover:border-white/20 
+                                 transition duration-300 focus:outline-none focus:ring-2 focus:ring-white/10">
+                    Cancel
+                  </button>
+                  <button type="submit" id="btn-save"
+                          class="relative group px-6 py-2.5 rounded-lg transition-all duration-300 overflow-hidden focus:outline-none focus:ring-2 focus:ring-sky-500/50">
+                    <div class="absolute inset-0 bg-gradient-to-r from-sky-600 to-emerald-500 transition-opacity group-hover:opacity-90"></div>
+                    <span class="relative font-medium text-white">Save Changes</span>
+                  </button>
+                </div>
+              </div>
+            </form>
+        </div>
+      </div>
+    </main>
+
+    <script>
+      // Initialize tooltips
+      tippy('[data-tippy-content]', {
+        theme: document.body.dataset.theme === 'dark' ? 'dark' : 'light',
+        animation: 'shift-away'
+      });
+
+      // Theme Toggle Functionality
+      const themeToggle = document.getElementById('theme-toggle');
+      
+      // Function to update modal theme based on current theme
+      function updateModalTheme(isDark) {
+        const modalPanel = document.querySelector('#modal .relative.w-full');
+        if (!modalPanel) return;
+
+        // Update modal background and border
+        if (isDark) {
+          modalPanel.className = 'relative w-full max-w-4xl transform rounded-xl bg-gradient-to-b from-gray-900 to-gray-800 shadow-2xl transition-all border border-white/10';
+        } else {
+          modalPanel.className = 'relative w-full max-w-4xl transform rounded-xl bg-white shadow-2xl transition-all border border-gray-200';
+        }
+
+        // Update text colors
+        const modalTexts = modalPanel.querySelectorAll('.theme-text');
+        modalTexts.forEach(el => {
+          el.classList.toggle('text-gray-900', !isDark);
+          el.classList.toggle('text-white', isDark);
+        });
+
+        // Update form elements
+        const inputs = modalPanel.querySelectorAll('input, select, textarea');
+        inputs.forEach(input => {
+          if (isDark) {
+            input.className = 'w-full bg-gray-900/40 border border-white/10 rounded-lg px-4 py-2.5 text-white placeholder-gray-500 focus:border-sky-500/50 focus:ring-1 focus:ring-sky-500/50';
+          } else {
+            input.className = 'w-full bg-white border border-gray-200 rounded-lg px-4 py-2.5 text-gray-900 placeholder-gray-500 focus:border-sky-500 focus:ring-1 focus:ring-sky-500';
+          }
+        });
+
+        // Update modal header
+        const modalHeader = modalPanel.querySelector('.border-b');
+        if (modalHeader) {
+          modalHeader.className = isDark ? 'border-b border-white/10' : 'border-b border-gray-200';
+        }
+
+        // Update buttons
+        const buttons = modalPanel.querySelectorAll('button:not([type="submit"])');
+        buttons.forEach(button => {
+          if (button.id === 'btn-close-modal') {
+            button.className = isDark 
+              ? 'rounded-xl bg-white/5 p-2.5 text-gray-400 hover:bg-white/10 hover:text-white transition-all duration-200 border border-white/10 hover:border-white/20 focus:outline-none focus:ring-2 focus:ring-sky-500/50'
+              : 'rounded-xl bg-gray-100 p-2.5 text-gray-500 hover:bg-gray-200 hover:text-gray-700 transition-all duration-200 border border-gray-200 hover:border-gray-300 focus:outline-none focus:ring-2 focus:ring-sky-500/50';
+          } else if (button.id === 'btn-cancel') {
+            button.className = isDark
+              ? 'px-4 py-2 bg-white/5 hover:bg-white/10 text-white rounded-lg transition-colors duration-200'
+              : 'px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors duration-200';
+          }
+        });
+      }
+
+      function setTheme(isDark) {
+        document.body.dataset.theme = isDark ? 'dark' : 'light';
+        localStorage.setItem('theme', isDark ? 'dark' : 'light');
+        
+        // Update tooltip theme
+        tippy.setDefaultProps({ theme: isDark ? 'dark' : 'light' });
+        
+        // Update modal theme if modal is open
+        updateModalTheme(isDark);
+      }
+
+      // Initialize theme
+      const savedTheme = localStorage.getItem('theme') || 'light';
+      setTheme(savedTheme === 'dark');
+
+      // Theme toggle handler
+      themeToggle.addEventListener('click', () => {
+        const isDark = document.body.dataset.theme === 'dark';
+        setTheme(!isDark);
+      });
+
+      // Listen for theme changes from other pages
+      window.addEventListener('storage', (event) => {
+        if (event.key === 'theme') {
+          const isDark = event.newValue === 'dark';
+          setTheme(isDark);
+          // Re-render any open modals with the new theme
+          if (!modal.classList.contains('hidden')) {
+            updateModalTheme(isDark);
+          }
+        }
+      });
+
+      // Set year in footer
+      const yearEl = document.getElementById('year');
+      if (yearEl) yearEl.textContent = new Date().getFullYear();
+
+      // Plants CRUD client
+      const apiBase = '/api/plants';
+      const btnAdd = document.getElementById('btn-add');
+      const modal = document.getElementById('modal');
+      const btnCancel = document.getElementById('btn-cancel');
+      const plantForm = document.getElementById('plant-form');
+      const tbody = document.getElementById('plants-tbody');
+      
+      // Pagination and Search Elements
+      const searchInput = document.getElementById('search-input');
+      const pageSize = document.getElementById('page-size');
+      const currentPageEl = document.getElementById('current-page');
+      const totalPagesEl = document.getElementById('total-pages');
+      const prevPageBtn = document.getElementById('prev-page');
+      const nextPageBtn = document.getElementById('next-page');
+
+      // Pagination State
+      let currentPage = 1;
+      let totalPages = 1;
+      let searchTerm = '';
+      let debounceTimeout;
+      let currentImage = null;
+
+      // Image Upload Handler
+      function updateImagePreview(file) {
+        const preview = document.getElementById('plant-image-preview');
+        const placeholder = document.getElementById('plant-image-placeholder');
+        const removeBtn = document.getElementById('btn-remove-image');
+        
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            preview.src = e.target.result;
+            preview.style.opacity = '1';
+            placeholder.style.display = 'none';
+            removeBtn.classList.remove('hidden');
+            currentImage = file;
+          };
+          reader.readAsDataURL(file);
+        } else {
+          preview.src = '/images/default-plant.png';
+          preview.style.opacity = '0.5';
+          placeholder.style.display = 'flex';
+          removeBtn.classList.add('hidden');
+          currentImage = null;
+        }
+      }
+
+      document.getElementById('btn-upload-image').addEventListener('click', () => {
+        document.getElementById('plant-image').click();
+      });
+
+      document.getElementById('btn-remove-image').addEventListener('click', () => {
+        updateImagePreview(null);
+      });
+
+      document.getElementById('plant-image').addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (file) {
+          if (file.size > 5 * 1024 * 1024) { // 5MB limit
+            alert('Image size should be less than 5MB');
+            return;
+          }
+          if (!file.type.match('image.*')) {
+            alert('Please select an image file');
+            return;
+          }
+          updateImagePreview(file);
+        }
+      });
+
+      // Enhanced Search Handler with Results Counter
+      const searchResults = document.getElementById('search-results');
+      const searchSpinner = document.getElementById('search-spinner');
+      const searchIcon = document.getElementById('search-icon');
+      
+      function updateSearchResults(count) {
+        const resultsIcon = document.getElementById('results-icon');
+        const resultsText = document.getElementById('results-text');
+        const searchResults = document.getElementById('search-results');
+        
+        if (!searchTerm) {
+          searchResults.classList.add('hidden');
+          return;
+        }
+
+        // Hide first to trigger animation
+        searchResults.classList.add('hidden');
+        
+        // Force repaint to trigger animation
+        void searchResults.offsetWidth;
+        
+        // Show results counter with animation
+        searchResults.classList.remove('hidden');
+        
+        // Update icon and text based on results
+        if (count === 0) {
+          resultsIcon.innerHTML = `
+            <svg class="w-5 h-5 text-red-400 drop-shadow-[0_0_8px_rgba(248,113,113,0.5)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                    d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>`;
+          resultsText.innerHTML = `No matches found for "<span class="text-red-400 font-medium drop-shadow-[0_0_8px_rgba(248,113,113,0.3)]">${searchTerm}</span>"`;
+        } else {
+          resultsIcon.innerHTML = `
+            <svg class="w-5 h-5 text-emerald-400 drop-shadow-[0_0_8px_rgba(52,211,153,0.5)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>`;
+          resultsText.innerHTML = `Found <span class="text-emerald-400 font-semibold drop-shadow-[0_0_8px_rgba(52,211,153,0.3)]">${count}</span> ${count === 1 ? 'match' : 'matches'} for "<span class="text-sky-400 font-medium drop-shadow-[0_0_8px_rgba(56,189,248,0.3)]">${searchTerm}</span>"`;
+        }
+      }
+
+      searchInput.addEventListener('input', (e) => {
+        clearTimeout(debounceTimeout);
+        
+        // Show loading state immediately
+        if (e.target.value) {
+          searchSpinner.classList.remove('hidden');
+          searchIcon.classList.add('hidden');
+        } else {
+          searchSpinner.classList.add('hidden');
+          searchIcon.classList.remove('hidden');
+          searchResults.classList.add('hidden');
+        }
+        
+        debounceTimeout = setTimeout(() => {
+          searchTerm = e.target.value;
+          currentPage = 1;
+          loadPlants();
+        }, 300);
+      });
+
+      // Pagination Handlers
+      pageSize.addEventListener('change', () => {
+        currentPage = 1;
+        loadPlants();
+      });
+
+      prevPageBtn.addEventListener('click', () => {
+        if (currentPage > 1) {
+          currentPage--;
+          loadPlants();
+        }
+      });
+
+      nextPageBtn.addEventListener('click', () => {
+        if (currentPage < totalPages) {
+          currentPage++;
+          loadPlants();
+        }
+      });
+
+      function updatePaginationUI(total) {
+        const limit = parseInt(pageSize.value);
+        totalPages = Math.ceil(total / limit);
+        currentPageEl.textContent = currentPage;
+        totalPagesEl.textContent = totalPages;
+        
+        prevPageBtn.disabled = currentPage <= 1;
+        nextPageBtn.disabled = currentPage >= totalPages;
+      }
+
+      function showModal(mode = 'add', plant = null) {
+        modal.classList.remove('hidden');
+        document.body.style.overflow = 'hidden'; // Prevent background scrolling
+        
+        const form = document.getElementById('plant-form');
+        const isDark = document.body.dataset.theme === 'dark';
+        
+        // Apply current theme to modal
+        updateModalTheme(isDark);
+
+        // Different handling for view vs edit modes
+        if (mode === 'view' && plant) {
+          // View mode - read only display
+          document.querySelector('#modal-title .text-xl').textContent = 'Plant Details';
+          document.querySelector('#modal-title .text-sm').textContent = 'View Information';
+          document.getElementById('btn-close-modal').style.display = 'block';
+
+          // Create view-only display
+          form.innerHTML = `
+            <div class="space-y-6">
+              <!-- Plant Image and Basic Info -->
+              <div class="bg-gray-900/40 backdrop-blur-sm rounded-xl border border-white/10 p-6">
+                <div class="grid grid-cols-[300px,1fr] gap-8">
+                  <!-- Left: Plant Image -->
+                  <div class="relative group">
+                    <div class="absolute inset-0 rounded-xl bg-gradient-to-br from-sky-500/20 to-emerald-500/20 group-hover:from-sky-500/30 group-hover:to-emerald-500/30 transition-all duration-300"></div>
+                    <img src="${plant.image || '/images/default-plant.png'}" 
+                         alt="${escapeHtml(plant.name)}" 
+                         class="relative w-full h-[300px] object-cover rounded-xl transition-transform duration-500 group-hover:scale-105"
+                         onerror="this.src='/images/default-plant.png'; this.onerror=null;">
+                  </div>
+
+                  <!-- Right: Basic Info -->
+                  <div class="space-y-4">
+                    <div>
+                      <label class="block text-sm font-medium text-gray-400">Plant Name</label>
+                      <h2 class="mt-1 text-2xl font-semibold text-white">${escapeHtml(plant.name)}</h2>
+                    </div>
+
+                    <div>
+                      <label class="block text-sm font-medium text-gray-400">Plant ID</label>
+                      <p class="mt-1 text-lg font-mono text-white/90">${plant.uniqueId || 'Not assigned'}</p>
+                    </div>
+
+                    <div>
+                      <label class="block text-sm font-medium text-gray-400">Description</label>
+                      <p class="mt-1 text-base text-white/90">${escapeHtml(plant.description) || 'No description available'}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Status and Mode -->
+              <div class="grid grid-cols-2 gap-4">
+                <div class="bg-gray-900/40 backdrop-blur-sm rounded-xl border border-white/10 p-6">
+                  <div class="flex items-center gap-3 mb-4">
+                    <svg class="w-5 h-5 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37.608-.996.07-2.296-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                    </svg>
+                    <h3 class="text-lg font-medium text-white">Operation Mode</h3>
+                  </div>
+                  <div class="flex items-center gap-3 ml-8">
+                    ${getModeIcon(plant.mode)}
+                    <span class="text-xl text-white">${plant.mode ? plant.mode.charAt(0).toUpperCase() + plant.mode.slice(1) : 'Manual'}</span>
+                  </div>
+                </div>
+
+                <div class="bg-gray-900/40 backdrop-blur-sm rounded-xl border border-white/10 p-6">
+                  <div class="flex items-center gap-3 mb-4">
+                    <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <h3 class="text-lg font-medium text-white">Current Status</h3>
+                  </div>
+                  <div class="flex items-center gap-3 ml-8">
+                    ${getStatusIcon(plant.status)}
+                    <span class="text-xl text-white">${plant.status || 'Unknown'}</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Timestamps -->
+              <div class="grid grid-cols-2 gap-4">
+                <div class="bg-gray-900/40 backdrop-blur-sm rounded-xl border border-white/10 p-6">
+                  <div class="flex items-center gap-3 mb-4">
+                    <svg class="w-5 h-5 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    <h3 class="text-lg font-medium text-white">Created On</h3>
+                  </div>
+                  <div class="ml-8 space-y-1">
+                    <p class="text-lg text-white">${plant.createdAt ? new Date(plant.createdAt).toLocaleDateString() : 'Not available'}</p>
+                    <p class="text-sm text-gray-400">${plant.createdAt ? new Date(plant.createdAt).toLocaleTimeString() : ''}</p>
+                  </div>
+                </div>
+
+                <div class="bg-gray-900/40 backdrop-blur-sm rounded-xl border border-white/10 p-6">
+                  <div class="flex items-center gap-3 mb-4">
+                    <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
+                    <h3 class="text-lg font-medium text-white">Last Updated</h3>
+                  </div>
+                  <div class="ml-8 space-y-1">
+                    <p class="text-lg text-white">${plant.updatedAt ? new Date(plant.updatedAt).toLocaleDateString() : 'No updates'}</p>
+                    <p class="text-sm text-gray-400">${plant.updatedAt ? new Date(plant.updatedAt).toLocaleTimeString() : ''}</p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Close Button -->
+              <div class="mt-8 flex justify-center">
+                <button type="button" onclick="hideModal()" 
+                        class="px-8 py-3 bg-white/5 hover:bg-white/10 text-white rounded-xl transition-all duration-300 
+                               flex items-center gap-3 focus:outline-none focus:ring-2 focus:ring-white/10
+                               hover:shadow-lg hover:shadow-white/5 group">
+                  <svg class="w-5 h-5 transform group-hover:rotate-90 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                  <span class="text-lg font-medium">Close View</span>
+                </button>
+              </div>
+            </div>
+          `;
+          
+          // Create view-only version of the form
+          form.innerHTML = `
+            <input type="hidden" id="plant-id" value="${plant.id || ''}" />
+            <div class="space-y-8">
+              <!-- Top section: Image and Info in a more compact layout -->
+              <div class="grid grid-cols-[240px,1fr] gap-4">
+                <!-- Left: Plant Image -->
+                <div class="rounded-lg overflow-hidden relative group h-[240px]">
+                  <div class="absolute inset-0 bg-gradient-to-br from-sky-600/20 to-emerald-400/20 z-10"></div>
+                  <img src="${plant.image || '/images/default-plant.png'}" 
+                       alt="${escapeHtml(plant.name)}" 
+                       class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                       onerror="this.src='/images/default-plant.png'; this.onerror=null;">
+                  <div class="absolute inset-0 border-2 border-white/10 rounded-lg"></div>
+                </div>
+
+                <!-- Right: Quick Info with compact layout -->
+                <div class="flex flex-col gap-3">
+                  <!-- Plant Details -->
+                  <div class="grid grid-cols-1 gap-3">
+                    <div class="bg-gray-900/40 backdrop-blur-sm rounded-lg border border-white/10 p-3">
+                      <div class="flex items-center gap-2 mb-1">
+                        <svg class="w-4 h-4 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14" />
+                        </svg>
+                        <span class="text-xs font-medium text-gray-400">Plant ID</span>
+                      </div>
+                      <span class="text-sm font-mono text-white">${plant.uniqueId || 'Not assigned'}</span>
+                    </div>
+
+                    <!-- Timestamps Section -->
+                    <div class="bg-gray-900/40 backdrop-blur-sm rounded-lg border border-white/10 p-3 space-y-3">
+                      <!-- Created At -->
+                      <div>
+                        <div class="flex items-center gap-2 mb-1">
+                          <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                          </svg>
+                          <span class="text-xs font-medium text-gray-400">Created On</span>
+                        </div>
+                        <span class="text-sm text-white">${plant.createdAt ? new Date(plant.createdAt).toLocaleString() : 'Not available'}</span>
+                      </div>
+
+                      <!-- Updated At -->
+                      <div>
+                        <div class="flex items-center gap-2 mb-1">
+                          <svg class="w-4 h-4 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                          </svg>
+                          <span class="text-xs font-medium text-gray-400">Last Updated</span>
+                        </div>
+                        <span class="text-sm text-white">${plant.updatedAt ? new Date(plant.updatedAt).toLocaleString() : 'No updates yet'}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Operation Mode and Status -->
+                  <div class="grid grid-cols-2 gap-3">
+                    <div class="bg-gray-900/40 backdrop-blur-sm rounded-lg border border-white/10 p-3">
+                      <div class="flex items-center gap-2 mb-1">
+                        <svg class="w-4 h-4 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                        </svg>
+                        <span class="text-xs font-medium text-gray-400">Operation Mode</span>
+                      </div>
+                      <div class="flex items-center gap-2">
+                        ${getModeIcon(plant.mode)}
+                        <span class="text-sm text-white">${plant.mode ? plant.mode.charAt(0).toUpperCase() + plant.mode.slice(1) : 'Manual'}</span>
+                      </div>
+                    </div>
+
+                    <div class="bg-gray-900/40 backdrop-blur-sm rounded-lg border border-white/10 p-3">
+                      <div class="flex items-center gap-2 mb-1">
+                        <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <span class="text-xs font-medium text-gray-400">Current Status</span>
+                      </div>
+                      <div class="flex items-center gap-2">
+                        ${getStatusIcon(plant.status)}
+                        <span class="text-sm text-white">${plant.status || 'Unknown'}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Plant Name and Description -->
+                  <div class="bg-gray-900/40 backdrop-blur-sm rounded-lg border border-white/10 p-3">
+                    <div class="flex items-center gap-2 mb-1">
+                      <svg class="w-4 h-4 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
+                      </svg>
+                      <span class="text-xs font-medium text-gray-400">Plant Details</span>
+                    </div>
+                    <div class="space-y-2">
+                      <h4 class="text-base font-medium text-white">${escapeHtml(plant.name) || 'No name provided'}</h4>
+                      <p class="text-sm text-gray-300">${escapeHtml(plant.description) || 'No description available'}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Modal footer -->
+            <div class="mt-8 flex justify-end">
+              <button type="button" onclick="hideModal()" 
+                      class="px-4 py-2 bg-white/5 hover:bg-white/10 text-white rounded-lg transition-colors duration-200 flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-white/10">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+                Close
+              </button>
+            </div>
+          `;
+        } else {
+          // Regular add/edit mode
+          document.querySelector('#modal-title .text-xl').textContent = mode === 'add' ? 'Add New Plant' : 'Edit Plant';
+          document.querySelector('#modal-title .text-sm').textContent = mode === 'add' ? 'Create Plant Entry' : 'Modify Plant Information';
+          document.getElementById('btn-close-modal').style.display = 'block';
+          
+          // Create edit form with proper structure
+          form.innerHTML = `
+            <div class="flex flex-col space-y-6">
+              <!-- Hidden ID field for edit mode -->
+              <input type="hidden" id="plant-id" value="${plant ? plant.id : ''}" />
+              
+              <!-- Image Section -->
+              <div class="bg-gray-900/40 backdrop-blur-sm rounded-xl border border-white/10 p-6">
+                <div class="space-y-6">
+                  ${/* Image upload section code... */`
+                  <!-- Image upload section with glowing effects -->
+                  <div>
+                    <label class="block text-sm font-medium mb-3 text-gray-300">Plant Image</label>
+                    <div class="flex items-start space-x-6">
+                      <!-- Image Preview with Glow Effect -->
+                      <div class="relative group">
+                        <!-- Glow Effect Background -->
+                        <div class="absolute -inset-2 bg-gradient-to-r from-sky-500 to-emerald-500 rounded-xl opacity-0 
+                                  group-hover:opacity-75 transition-all duration-500 blur-xl"></div>
+                        
+                        <!-- Image Container -->
+                        <div class="relative w-48 h-48 rounded-xl border-2 border-dashed border-white/20 
+                                  overflow-hidden bg-gray-900/40 backdrop-blur-sm transition-transform duration-500 
+                                  group-hover:scale-105 group-hover:border-white/40">
+                          <img id="plant-image-preview" 
+                               src="${plant && plant.image ? plant.image : '/images/default-plant.png'}" 
+                               alt="Plant Image Preview" 
+                               class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 
+                                      group-hover:scale-110">
+                          
+                          <!-- Placeholder Overlay -->
+                          <div id="plant-image-placeholder" 
+                               class="absolute inset-0 flex flex-col items-center justify-center bg-gray-900/60 
+                                      backdrop-blur-sm transition-opacity duration-300 ${plant && plant.image ? 'hidden' : ''}">
+                            <svg class="w-16 h-16 text-white/20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" 
+                                    d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                            <p class="mt-3 text-sm text-white/50">No image selected</p>
+                          </div>
+                        </div>
+                      </div>
+
+                      <!-- Upload Controls -->
+                      <div class="flex flex-col gap-3 pt-2">
+                        <input type="file" id="plant-image" accept="image/*" class="hidden" />
+                        
+                        <!-- Choose Image Button -->
+                        <button type="button" id="btn-upload-image" 
+                                class="group relative px-5 py-2.5 rounded-lg transition-all duration-300 overflow-hidden">
+                          <div class="absolute inset-0 bg-gradient-to-r from-sky-600 to-emerald-500 opacity-100 
+                                    transition-opacity group-hover:opacity-90"></div>
+                          <div class="absolute -inset-2 bg-gradient-to-r from-sky-400 to-emerald-400 opacity-0 
+                                    group-hover:opacity-50 blur-xl transition-opacity duration-500"></div>
+                          <div class="relative flex items-center gap-2 text-white">
+                            <svg class="w-5 h-5 transition-transform duration-300 group-hover:scale-110" 
+                                 fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                    d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                            </svg>
+                            <span class="font-medium">Choose Image</span>
+                          </div>
+                        </button>
+
+                        <!-- Remove Image Button -->
+                        <button type="button" id="btn-remove-image" 
+                                class="${plant && plant.image ? '' : 'hidden'} group relative px-5 py-2.5 rounded-lg 
+                                       transition-all duration-300 overflow-hidden">
+                          <div class="absolute inset-0 bg-gradient-to-r from-red-500/10 to-red-600/10 
+                                    group-hover:from-red-500/20 group-hover:to-red-600/20 transition-opacity"></div>
+                          <div class="absolute -inset-2 bg-gradient-to-r from-red-400 to-red-500 opacity-0 
+                                    group-hover:opacity-30 blur-xl transition-opacity duration-500"></div>
+                          <div class="relative flex items-center gap-2 text-red-400 group-hover:text-red-300">
+                            <svg class="w-5 h-5 transition-transform duration-300 group-hover:scale-110" 
+                                 fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                            <span class="font-medium">Remove Image</span>
+                          </div>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                  `}
+                </div>
+              </div>
+
+              <!-- Plant Details Section -->
+              <div class="bg-gray-900/40 backdrop-blur-sm rounded-xl border border-white/10 p-6">
+                <div class="grid grid-cols-2 gap-6">
+                  <!-- Plant Name -->
+                  <div class="space-y-2">
+                    <label for="plant-name" class="block text-sm font-medium text-gray-300">Plant Name</label>
+                    <input type="text" id="plant-name" 
+                           class="w-full bg-gray-900/40 border border-white/10 rounded-lg px-4 py-2.5 text-white 
+                                  placeholder-gray-500 focus:border-sky-500/50 focus:ring-2 focus:ring-sky-500/50" 
+                           value="${plant ? escapeHtml(plant.name) : ''}" 
+                           required />
+                  </div>
+
+                  <!-- Operation Mode -->
+                  <div class="space-y-2">
+                    <label for="plant-mode" class="block text-sm font-medium text-gray-300">Operation Mode</label>
+                    <select id="plant-mode" 
+                            class="w-full bg-gray-900/40 border border-white/10 rounded-lg px-4 py-2.5 text-white 
+                                   focus:border-sky-500/50 focus:ring-2 focus:ring-sky-500/50">
+                      <option value="manual" ${plant && plant.mode === 'manual' ? 'selected' : ''}>Manual Operation</option>
+                      <option value="automatic" ${plant && plant.mode === 'automatic' ? 'selected' : ''}>Automatic Operation</option>
+                      <option value="scheduled" ${plant && plant.mode === 'scheduled' ? 'selected' : ''}>Scheduled Operation</option>
+                    </select>
+                  </div>
+
+                  <!-- Description -->
+                  <div class="col-span-2 space-y-2">
+                    <label for="plant-description" class="block text-sm font-medium text-gray-300">Description</label>
+                    <textarea id="plant-description" rows="3" 
+                              class="w-full bg-gray-900/40 border border-white/10 rounded-lg px-4 py-2.5 text-white 
+                                     placeholder-gray-500 focus:border-sky-500/50 focus:ring-2 focus:ring-sky-500/50">${plant ? escapeHtml(plant.description) : ''}</textarea>
+                  </div>
+
+                  <!-- Status -->
+                  <div class="col-span-2 space-y-2">
+                    <label for="plant-status" class="block text-sm font-medium text-gray-300">Current Status</label>
+                    <select id="plant-status" 
+                            class="w-full bg-gray-900/40 border border-white/10 rounded-lg px-4 py-2.5 text-white 
+                                   focus:border-sky-500/50 focus:ring-2 focus:ring-sky-500/50">
+                      <option value="Unknown" ${plant && plant.status === 'Unknown' ? 'selected' : ''}>Unknown</option>
+                      <option value="Healthy" ${plant && plant.status === 'Healthy' ? 'selected' : ''}>Healthy</option>
+                      <option value="Needs attention" ${plant && plant.status === 'Needs attention' ? 'selected' : ''}>Needs Attention</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Form Actions -->
+              <div class="flex items-center justify-end gap-3 pt-6 mt-6 border-t border-white/10">
+                <button type="button" onclick="hideModal()" 
+                        class="px-6 py-2.5 rounded-lg border border-white/10 text-white hover:bg-white/5 
+                               transition duration-300 focus:outline-none focus:ring-2 focus:ring-white/10">
+                  Cancel
+                </button>
+                <button type="submit" 
+                        class="group relative px-6 py-2.5 rounded-lg transition-all duration-300 overflow-hidden 
+                               focus:outline-none focus:ring-2 focus:ring-sky-500/50">
+                  <div class="absolute inset-0 bg-gradient-to-r from-sky-600 to-emerald-500 opacity-100 
+                            transition-opacity group-hover:opacity-90"></div>
+                  <span class="relative text-white font-medium">
+                    ${mode === 'add' ? 'Create Plant' : 'Save Changes'}
+                  </span>
+                </button>
+              </div>
+            </div>
+          `;
+          
+          // Reset form and image states
+          form.innerHTML = `
+            <input type="hidden" id="plant-id" value="${plant ? plant.id : ''}" />
+            <div class="space-y-6">
+              <!-- Image upload section with glowing effects -->
+              <div>
+                <label class="block text-sm font-medium mb-3 text-gray-300">Plant Image</label>
+                <div class="flex items-start space-x-6">
+                  <!-- Image Preview with Glow Effect -->
+                  <div class="relative group">
+                    <!-- Glow Effect Background -->
+                    <div class="absolute -inset-2 bg-gradient-to-r from-sky-500 to-emerald-500 rounded-xl opacity-0 
+                              group-hover:opacity-75 transition-all duration-500 blur-xl"></div>
+                    
+                    <!-- Image Container -->
+                    <div class="relative w-48 h-48 rounded-xl border-2 border-dashed border-white/20 
+                              overflow-hidden bg-gray-900/40 backdrop-blur-sm transition-transform duration-500 
+                              group-hover:scale-105 group-hover:border-white/40">
+                      <img id="plant-image-preview" 
+                           src="${plant && plant.image ? plant.image : '/images/default-plant.png'}" 
+                           alt="Plant Image Preview" 
+                           class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 
+                                  group-hover:scale-110">
+                      
+                      <!-- Placeholder Overlay -->
+                      <div id="plant-image-placeholder" 
+                           class="absolute inset-0 flex flex-col items-center justify-center bg-gray-900/60 
+                                  backdrop-blur-sm transition-opacity duration-300 ${plant && plant.image ? 'hidden' : ''}">
+                        <svg class="w-16 h-16 text-white/20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" 
+                                d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                        <p class="mt-3 text-sm text-white/50">No image selected</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Upload Controls with Enhanced Styling -->
+                  <div class="flex flex-col gap-3 pt-2">
+                    <input type="file" id="plant-image" accept="image/*" class="hidden" />
+                    
+                    <!-- Choose Image Button with Glow -->
+                    <button type="button" id="btn-upload-image" 
+                            class="group relative px-5 py-2.5 rounded-lg transition-all duration-300 overflow-hidden">
+                      <div class="absolute inset-0 bg-gradient-to-r from-sky-600 to-emerald-500 opacity-100 
+                                transition-opacity group-hover:opacity-90"></div>
+                      <div class="absolute -inset-2 bg-gradient-to-r from-sky-400 to-emerald-400 opacity-0 
+                                group-hover:opacity-50 blur-xl transition-opacity duration-500"></div>
+                      <div class="relative flex items-center gap-2 text-white">
+                        <svg class="w-5 h-5 transition-transform duration-300 group-hover:scale-110" 
+                             fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                        </svg>
+                        <span class="font-medium">Choose Image</span>
+                      </div>
+                    </button>
+
+                    <!-- Remove Image Button with Glow -->
+                    <button type="button" id="btn-remove-image" 
+                            class="${plant && plant.image ? '' : 'hidden'} group relative px-5 py-2.5 rounded-lg 
+                                   transition-all duration-300 overflow-hidden">
+                      <div class="absolute inset-0 bg-gradient-to-r from-red-500/10 to-red-600/10 
+                                group-hover:from-red-500/20 group-hover:to-red-600/20 transition-opacity"></div>
+                      <div class="absolute -inset-2 bg-gradient-to-r from-red-400 to-red-500 opacity-0 
+                                group-hover:opacity-30 blur-xl transition-opacity duration-500"></div>
+                      <div class="relative flex items-center gap-2 text-red-400 group-hover:text-red-300">
+                        <svg class="w-5 h-5 transition-transform duration-300 group-hover:scale-110" 
+                             fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                        <span class="font-medium">Remove Image</span>
+                      </div>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Plant details section -->
+              <div class="grid grid-cols-2 gap-6">
+                <div>
+                  <label class="block text-sm font-medium mb-2 text-gray-300">Plant Name</label>
+                  <input id="plant-name" type="text" 
+                         class="w-full bg-gray-900/40 border border-white/10 rounded-lg px-4 py-2.5 text-white placeholder-gray-500 focus:border-sky-500/50 focus:ring-1 focus:ring-sky-500/50" 
+                         value="${plant ? escapeHtml(plant.name) : ''}"
+                         required />
+                </div>
+                <div>
+                  <label class="block text-sm font-medium mb-2 text-gray-300">Operation Mode</label>
+                  <select id="plant-mode" 
+                          class="w-full bg-gray-900/40 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:border-sky-500/50 focus:ring-1 focus:ring-sky-500/50">
+                    <option value="manual" ${plant && plant.mode === 'manual' ? 'selected' : ''}>Manual Operation</option>
+                    <option value="automatic" ${plant && plant.mode === 'automatic' ? 'selected' : ''}>Automatic Operation</option>
+                    <option value="scheduled" ${plant && plant.mode === 'scheduled' ? 'selected' : ''}>Scheduled Operation</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium mb-2 text-gray-300">Description</label>
+                <textarea id="plant-description" 
+                          class="w-full bg-gray-900/40 border border-white/10 rounded-lg px-4 py-2.5 text-white placeholder-gray-500 focus:border-sky-500/50 focus:ring-1 focus:ring-sky-500/50" 
+                          rows="3">${plant ? escapeHtml(plant.description) : ''}</textarea>
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium mb-2 text-gray-300">Current Status</label>
+                <select id="plant-status" 
+                        class="w-full bg-gray-900/40 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:border-sky-500/50 focus:ring-1 focus:ring-sky-500/50">
+                  <option value="Unknown" ${plant && plant.status === 'Unknown' ? 'selected' : ''}>Unknown</option>
+                  <option value="Healthy" ${plant && plant.status === 'Healthy' ? 'selected' : ''}>Healthy</option>
+                  <option value="Needs attention" ${plant && plant.status === 'Needs attention' ? 'selected' : ''}>Needs Attention</option>
+                </select>
+              </div>
+
+              <!-- Form actions -->
+              <div class="flex justify-end gap-3">
+                <button type="button" onclick="hideModal()" 
+                        class="px-4 py-2 bg-white/5 hover:bg-white/10 text-white rounded-lg transition-colors duration-200">
+                  Cancel
+                </button>
+                <button type="submit" id="btn-save" 
+                        class="px-4 py-2 bg-sky-600 hover:bg-sky-700 text-white rounded-lg transition-colors duration-200 flex items-center gap-2">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                  </svg>
+                  ${mode === 'add' ? 'Create Plant' : 'Save Changes'}
+                </button>
+              </div>
+            </div>
+          `;
+        }
+
+        // Initialize image handlers for add/edit mode
+        if (mode !== 'view') {
+          document.getElementById('btn-upload-image').addEventListener('click', () => {
+            document.getElementById('plant-image').click();
+          });
+
+          document.getElementById('btn-remove-image').addEventListener('click', () => {
+            updateImagePreview(null);
+          });
+
+          document.getElementById('plant-image').addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+              if (file.size > 5 * 1024 * 1024) { // 5MB limit
+                showNotification('error', 'Image Too Large', 'Please select an image smaller than 5MB');
+                return;
+              }
+              if (!file.type.match('image.*')) {
+                showNotification('error', 'Invalid File', 'Please select a valid image file');
+                return;
+              }
+              updateImagePreview(file);
+            }
+          });
+        }
+      }
+
+      function hideModal() { 
+        const modal = document.getElementById('modal');
+        modal.classList.add('opacity-0');
+        document.body.style.overflow = ''; // Restore background scrolling
+        
+        setTimeout(() => {
+          modal.classList.add('hidden');
+          modal.classList.remove('opacity-0');
+          // Reset form to initial state if needed
+          const form = document.getElementById('plant-form');
+          if (form) {
+            form.reset();
+          }
+          // Clear any remaining file selection
+          const fileInput = document.getElementById('plant-image');
+          if (fileInput) {
+            fileInput.value = '';
+          }
+        }, 200);
+      }
+
+      // Close modal with escape key
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && !modal.classList.contains('hidden')) {
+          hideModal();
+        }
+      });
+
+      // Close modal when clicking outside
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+          hideModal();
+        }
+      });
+
+      // Add event listener for the close button
+      document.getElementById('btn-close-modal')?.addEventListener('click', hideModal);
+
+      btnAdd.addEventListener('click', () => showModal('add'));
+      btnCancel.addEventListener('click', hideModal);
+
+      plantForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const id = document.getElementById('plant-id').value;
+        const formData = new FormData();
+        const plantName = document.getElementById('plant-name').value;
+        formData.append('name', plantName);
+        formData.append('description', document.getElementById('plant-description').value);
+        formData.append('mode', document.getElementById('plant-mode').value);
+        formData.append('status', document.getElementById('plant-status').value);
+        
+        if (currentImage) {
+          formData.append('image', currentImage);
+        }
+
+        // Show loading notification
+        const loadingNotification = showNotification(
+          'loading',
+          id ? 'Updating Plant...' : 'Creating Plant...',
+          'Please wait while we save your changes...'
+        );
+
+        try {
+          if (id) {
+            // update
+            const res = await fetch(`${apiBase}/${id}`, { method: 'PUT', body: formData });
+            if (!res.ok) throw new Error('Update failed');
+            loadingNotification.remove();
+            showNotification(
+              'success',
+              'Plant Updated',
+              `Successfully updated plant "${plantName}"`,
+              6000
+            );
+          } else {
+            const res = await fetch(apiBase, { method: 'POST', body: formData });
+            if (!res.ok) throw new Error('Create failed');
+            loadingNotification.remove();
+            showNotification(
+              'success',
+              'Plant Created',
+              `Successfully created new plant "${plantName}"`,
+              6000
+            );
+          }
+          hideModal();
+          loadPlants();
+        } catch (err) {
+          loadingNotification.remove();
+          showNotification(
+            'error',
+            'Operation Failed',
+            err.message || 'Failed to save plant data. Please try again.',
+            8000
+          );
+        }
+      });
+
+      function showNotification(type, title, message, duration = 5000) {
+        // Remove existing notification if any
+        const existingNotification = document.querySelector('.notification');
+        if (existingNotification) {
+          existingNotification.remove();
+        }
+
+        // Get icon based on type
+        const getIcon = () => {
+          switch(type) {
+            case 'success':
+              return `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>`;
+            case 'error':
+              return `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>`;
+            case 'loading':
+              return '<div class="loading-spinner"></div>';
+            default:
+              return '';
+          }
+        };
+
+        // Create notification element
+        const notification = document.createElement('div');
+        notification.className = `notification ${type}`;
+        notification.innerHTML = `
+          <div class="flex items-center gap-4 relative z-10">
+            <div class="flex-shrink-0">
+              ${getIcon()}
+            </div>
+            <div class="flex-1 min-w-0">
+              <p class="font-medium text-base">${title}</p>
+              <p class="text-sm opacity-90 mt-0.5 truncate">${message}</p>
+            </div>
+            ${type !== 'loading' ? `
+              <button onclick="this.parentElement.parentElement.remove()" 
+                      class="flex-shrink-0 ml-2 p-1.5 rounded-lg hover:bg-black/10 transition-colors duration-200">
+                <svg class="w-4 h-4 opacity-75 hover:opacity-100" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            ` : ''}
+          </div>
+          <div class="progress-line" ${type !== 'loading' ? `style="animation-duration: ${duration}ms"` : ''}></div>
+        `;
+
+        // Add to document
+        document.body.appendChild(notification);
+
+        // Auto remove after duration (except for loading notifications)
+        if (type !== 'loading') {
+          setTimeout(() => {
+            notification.style.animation = 'slideOut 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards';
+            setTimeout(() => notification.remove(), 400);
+          }, duration);
+        }
+
+        return notification;
+      }
+
+      function showDeleteConfirmation(plantName, onConfirm) {
+        const modal = document.createElement('div');
+        modal.className = 'delete-modal';
+        modal.innerHTML = `
+          <div class="delete-modal-content">
+            <div class="flex flex-col gap-4">
+              <div class="flex items-center gap-3 text-red-500 dark:text-red-400">
+                <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+                <h3 class="text-xl font-semibold theme-text">Delete Confirmation</h3>
+              </div>
+              
+              <p class="text-base theme-text">
+                Are you sure you want to delete <strong>${escapeHtml(plantName)}</strong>? 
+                This action cannot be undone.
+              </p>
+
+              <div class="flex justify-end gap-3 mt-4">
+                <button class="px-4 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 theme-text transition-colors duration-200"
+                        onclick="this.closest('.delete-modal').remove()">
+                  Cancel
+                </button>
+                <button class="px-4 py-2 rounded-lg bg-red-500 hover:bg-red-600 text-white transition-colors duration-200 flex items-center gap-2"
+                        id="confirm-delete">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                      d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                  Delete Plant
+                </button>
+              </div>
+            </div>
+          </div>
+        `;
+
+        document.body.appendChild(modal);
+        requestAnimationFrame(() => {
+          modal.style.opacity = '1';
+          modal.querySelector('.delete-modal-content').style.opacity = '1';
+          modal.querySelector('.delete-modal-content').style.transform = 'scale(1)';
+        });
+
+        // Close on backdrop click
+        modal.addEventListener('click', (e) => {
+          if (e.target === modal) {
+            closeDeleteModal(modal);
+          }
+        });
+
+        // Close on ESC key
+        const escHandler = (e) => {
+          if (e.key === 'Escape') {
+            closeDeleteModal(modal);
+            document.removeEventListener('keydown', escHandler);
+          }
+        };
+        document.addEventListener('keydown', escHandler);
+
+        // Handle confirm click
+        modal.querySelector('#confirm-delete').addEventListener('click', () => {
+          closeDeleteModal(modal);
+          onConfirm();
+        });
+      }
+
+      function closeDeleteModal(modal) {
+        modal.style.opacity = '0';
+        modal.querySelector('.delete-modal-content').style.opacity = '0';
+        modal.querySelector('.delete-modal-content').style.transform = 'scale(0.95)';
+        setTimeout(() => modal.remove(), 300);
+      }
+
+      async function loadPlants() {
+        tbody.innerHTML = '<tr><td colspan="8" class="p-4 text-center text-sm theme-text-secondary">Loading...</td></tr>';
+        try {
+          const limit = parseInt(pageSize.value);
+          const offset = (currentPage - 1) * limit;
+          const query = new URLSearchParams({
+            limit: limit.toString(),
+            offset: offset.toString(),
+            ...(searchTerm && { search: searchTerm })
+          });
+
+          const res = await fetch(`${apiBase}?${query}`);
+          const data = await res.json();
+          if (!data.success) throw new Error(data.error || 'Failed');
+          
+          const { plants, total } = data;
+          updatePaginationUI(total);
+          
+          // Update search results counter
+          searchSpinner.classList.add('hidden');
+          searchIcon.classList.remove('hidden');
+          updateSearchResults(total);
+
+          if (!plants || plants.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="8" class="p-4 text-center text-sm theme-text-secondary">No plants found</td></tr>';
+            return;
+          }
+          tbody.innerHTML = plants.map(p => {
+            return `
+              <tr class="transition-all hover:shadow-md">
+                <td class="px-6 py-4 whitespace-nowrap text-gray-900 dark:text-gray-100">${escapeHtml(p.uniqueId || '')}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-center">
+                  <div class="relative w-16 h-16 rounded-lg border theme-border overflow-hidden bg-white shadow-sm dark:bg-gray-800 mx-auto">
+                    <img src="${p.image || '/images/default-plant.png'}" alt="${escapeHtml(p.name)}" 
+                         class="w-full h-full object-cover hover:scale-110 transition-transform duration-200"
+                         onerror="this.src='/images/default-plant.png'; this.onerror=null;"
+                         onclick="window.open(this.src, '_blank')"
+                         style="cursor: pointer;">
+                  </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap theme-text">${escapeHtml(p.name)}</td>
+                <td class="px-6 py-4 whitespace-nowrap theme-text">${escapeHtml(p.description)}</td>
+                <td class="px-6 py-4 whitespace-nowrap theme-text text-center">
+                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getModeColorClass(p.mode)}">
+                    ${escapeHtml(p.mode ? p.mode.charAt(0).toUpperCase() + p.mode.slice(1) : 'Manual')}
+                  </span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap theme-text text-center">${escapeHtml(p.status)}</td>
+                <td class="px-6 py-4 whitespace-nowrap theme-text">${p.createdAt ? new Date(p.createdAt).toLocaleString() : ''}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-right">
+                  <div class="flex items-center justify-end gap-3">
+                    <!-- View Button -->
+                    <button data-id="${p.id}" data-action="view" 
+                            class="group relative p-2 rounded-full transition-all duration-300 hover:bg-blue-500/10
+                                   focus:outline-none focus:ring-2 focus:ring-blue-500/20" 
+                            title="View Details">
+                      <div class="absolute -inset-0.5 bg-blue-500/20 rounded-full blur opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                      <svg class="relative w-5 h-5 text-blue-500 transition-transform duration-300 group-hover:scale-110" 
+                           fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                              d="M15 12a3 3 0 11-6 0 3 3 0 016 0z M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                      </svg>
+                    </button>
+
+                    <!-- Edit Button -->
+                    <button data-id="${p.id}" data-action="edit" 
+                            class="group relative p-2 rounded-full transition-all duration-300 hover:bg-amber-500/10
+                                   focus:outline-none focus:ring-2 focus:ring-amber-500/20" 
+                            title="Edit Plant">
+                      <div class="absolute -inset-0.5 bg-amber-500/20 rounded-full blur opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                      <svg class="relative w-5 h-5 text-amber-500 transition-transform duration-300 group-hover:scale-110" 
+                           fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                              d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                      </svg>
+                    </button>
+
+                    <!-- Delete Button -->
+                    <button data-id="${p.id}" data-action="delete" 
+                            class="group relative p-2 rounded-full transition-all duration-300 hover:bg-red-500/10
+                                   focus:outline-none focus:ring-2 focus:ring-red-500/20" 
+                            title="Delete Plant">
+                      <div class="absolute -inset-0.5 bg-red-500/20 rounded-full blur opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                      <svg class="relative w-5 h-5 text-red-500 transition-transform duration-300 group-hover:scale-110" 
+                           fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                      </svg>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            `}).join('');
+        } catch (err) {
+          tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-sm text-red-500">Error: ${escapeHtml(err.message)}</td></tr>`;
+        }
+      }
+
+      tbody.addEventListener('click', async (e) => {
+        const btn = e.target.closest('button');
+        if (!btn) return;
+        const id = btn.dataset.id;
+        const action = btn.dataset.action;
+        if (action === 'view') {
+          // Show loading notification
+          const loadingNotification = showNotification(
+            'loading',
+            'Loading Plant Details',
+            'Please wait while we fetch the plant information...'
+          );
+
+          try {
+            const res = await fetch(`${apiBase}/${id}`);
+            const data = await res.json();
+            
+            if (!data.success) throw new Error('Failed to load plant details');
+            
+            loadingNotification.remove();
+            showModal('view', data.plant);
+          } catch (err) {
+            loadingNotification.remove();
+            showNotification(
+              'error',
+              'Error Loading Details',
+              'Failed to load plant information. Please try again.',
+              6000
+            );
+          }
+        } else if (action === 'edit') {
+          const res = await fetch(`${apiBase}/${id}`);
+          const data = await res.json();
+          if (data.success) showModal('edit', data.plant);
+          } else if (action === 'delete') {
+            const res = await fetch(`${apiBase}/${id}`);
+            const data = await res.json();
+            if (!data.success) {
+              showNotification('error', 'Error', 'Could not load plant information');
+              return;
+            }
+            
+            const plant = data.plant;
+            showDeleteConfirmation(plant.name, async () => {
+              // Show loading notification
+              const loadingNotification = showNotification(
+                'loading',
+                'Deleting Plant...',
+                `Removing ${plant.name} from the system...`
+              );
+
+              try {
+                const res = await fetch(`${apiBase}/${id}`, { method: 'DELETE' });
+                const data = await res.json();
+                if (data.success) {
+                  loadingNotification.remove();
+                  showNotification(
+                    'success',
+                    'Plant Deleted',
+                    `"${plant.name}" has been successfully removed`,
+                    6000
+                  );
+                  loadPlants();
+                } else {
+                  throw new Error(data.error || 'Delete failed');
+                }
+              } catch (err) {
+                loadingNotification.remove();
+                showNotification(
+                  'error',
+                  'Delete Failed',
+                  err.message || 'Failed to delete plant. Please try again.',
+                  8000
+                );
+              }
+            });
+          }
+      });      function escapeHtml(str) {
+        if (!str) return '';
+        return String(str).replace(/[&<>"']/g, function (s) { return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s]); });
+      }
+
+      function getModeIcon(mode) {
+        switch (mode) {
+          case 'manual':
+            return `<svg class="w-4 h-4 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 11.5V14m0-2.5v-6a2 2 0 014 0v6m-4 0h4m-4 0h0m-4 0v6a2 2 0 104 0v-6M3 7h10a2 2 0 002-2V3m-4 0H7a2 2 0 00-2 2v2m10 0h4a2 2 0 002-2V3m0 18v-2a2 2 0 00-2-2h-4m-4 0H7a2 2 0 00-2 2v2" />
+            </svg>`;
+          case 'automatic':
+            return `<svg class="w-4 h-4 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>`;
+          case 'scheduled':
+            return `<svg class="w-4 h-4 text-violet-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>`;
+          default:
+            return `<svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>`;
+        }
+      }
+
+      function getStatusIcon(status) {
+        switch (status?.toLowerCase()) {
+          case 'healthy':
+            return `<svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>`;
+          case 'needs attention':
+            return `<svg class="w-4 h-4 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>`;
+          case 'watering':
+            return `<svg class="w-4 h-4 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+            </svg>`;
+          default:
+            return `<svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>`;
+        }
+      }
+
+      function getModeColorClass(mode) {
+        switch (mode) {
+          case 'manual':
+            return 'bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-300';
+          case 'automatic':
+            return 'bg-orange-100 text-orange-800 dark:bg-orange-900/50 dark:text-orange-300';
+          case 'scheduled':
+            return 'bg-violet-100 text-violet-800 dark:bg-violet-900/50 dark:text-violet-300';
+          default:
+            return 'bg-gray-100 text-gray-800 dark:bg-gray-900/50 dark:text-gray-300';
+        }
+      }
+
+      // initial load
+      loadPlants();
+    </script>
+  </body>
+</html>

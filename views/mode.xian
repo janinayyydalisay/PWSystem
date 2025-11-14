@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>System Mode — AquaTECHvironment</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/@popperjs/core@2"></script>
+    <script src="https://unpkg.com/tippy.js@6"></script>
+    <link rel="stylesheet" href="https://unpkg.com/tippy.js@6/themes/light.css">
+    <style>
+      /* Theme system with comprehensive color palette */
+      :root {
+        /* Light theme - enhanced readability */
+        --theme-bg: 248, 250, 252;
+        --theme-bg-secondary: 241, 245, 249;
+        --theme-text: 15, 23, 42;  /* Darker text for better contrast */
+        --theme-text-secondary: 51, 65, 85;
+        
+        /* Rich colors with better contrast for light theme */
+        --theme-green: 20, 83, 45;      /* Forest green */
+        --theme-blue: 29, 78, 216;      /* Royal blue */
+        --theme-orange: 194, 65, 12;    /* Burnt orange */
+        --theme-violet: 109, 40, 217;   /* Deep violet */
+        --theme-pink: 190, 24, 93;      /* Rich pink */
+        --theme-red: 185, 28, 28;       /* Deep red */
+        
+        /* Card and overlay colors */
+        --theme-card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+        --theme-overlay: 255, 255, 255, 0.9;
+        --theme-success: 16, 185, 129;
+        --theme-success-light: 167, 243, 208;
+        --theme-border: 229, 231, 235;
+        --theme-card: 255, 255, 255;
+        --theme-card-hover: 243, 244, 246;
+        --theme-shadow: 0, 0, 0;
+      }
+      
+      [data-theme="dark"] {
+        /* Dark theme - lighter vibrant colors */
+        --theme-bg: 17, 24, 39;
+        --theme-bg-secondary: 31, 41, 55;
+        --theme-text: 243, 244, 246;    /* Light gray text */
+        --theme-text-secondary: 156, 163, 175;
+        
+        /* Light vibrant colors for dark theme */
+        --theme-green: 134, 239, 172;    /* Light green */
+        --theme-blue: 147, 197, 253;     /* Light blue */
+        --theme-orange: 253, 186, 116;   /* Light orange */
+        --theme-violet: 216, 180, 254;   /* Light violet */
+        --theme-pink: 251, 207, 232;     /* Light pink */
+        --theme-red: 252, 165, 165;      /* Light red */
+        --theme-success: 52, 211, 153;
+        --theme-success-light: 4, 120, 87;
+        --theme-border: 55, 65, 81;
+        --theme-card: 31, 41, 55;
+        --theme-card-hover: 55, 65, 81;
+        --theme-shadow: 0, 0, 0;
+      }
+
+      /* Enhanced theme utility classes with hover effects */
+      .theme-bg { 
+        background-color: rgb(var(--theme-bg));
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+      .theme-bg-secondary { 
+        background-color: rgb(var(--theme-bg-secondary));
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+      .theme-text { 
+        color: rgb(var(--theme-text));
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+      .theme-text-secondary { 
+        color: rgb(var(--theme-text-secondary));
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+      .theme-border { 
+        border-color: rgb(var(--theme-border));
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      /* Interactive elements */
+      .nav-link {
+        position: relative;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+      .nav-link:after {
+        content: '';
+        position: absolute;
+        width: 100%;
+        height: 2px;
+        bottom: -4px;
+        left: 0;
+        background-color: rgb(var(--theme-blue));
+        transform: scaleX(0);
+        transform-origin: right;
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+      .nav-link:hover:after {
+        transform: scaleX(1);
+        transform-origin: left;
+      }
+
+      /* Card hover effects */
+      .hover-lift {
+        transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+                    box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+      .hover-lift:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 24px -8px rgba(var(--theme-shadow), 0.15);
+      }
+
+      /* Button hover effects */
+      .button-hover {
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+      .button-hover:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px -2px rgba(var(--theme-shadow), 0.12);
+      }
+
+      .theme-transition {
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      /* Active state for mode buttons */
+      .mode-button.active {
+        background-color: rgb(var(--theme-blue));
+        color: white;
+      }
+      [data-theme="dark"] .mode-button.active {
+        background-color: rgb(var(--theme-blue));
+      }
+    </style>
+  </head>
+  <body class="antialiased theme-text theme-bg theme-transition min-h-screen" data-theme="light">
+    <header class="theme-bg shadow-sm sticky top-0 z-50 theme-transition border-b theme-border">
+      <div class="max-w-6xl mx-auto px-6 py-4">
+        <div class="flex items-center justify-between">
+          <!-- Logo and Brand -->
+          <a href="/" class="flex items-center gap-3 group">
+            <div class="relative w-11 h-11 rounded-xl bg-gradient-to-br from-sky-600 to-emerald-400 flex items-center justify-center overflow-hidden">
+              <!-- Animated plant icon -->
+              <svg class="w-6 h-6 text-white plant-sway" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 19V5M12 5C12 5 9 8 7 11M12 5C12 5 15 8 17 11" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                <path d="M6 19h12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+            </div>
+            <div class="transform transition group-hover:scale-[1.01]">
+              <div class="font-bold text-lg">AquaTECHvironment</div>
+              <div class="text-xs opacity-75">Technology • Environment</div>
+            </div>
+          </a>
+
+          <!-- Desktop Navigation -->
+          <nav class="hidden md:flex items-center gap-8">
+            <a href="/" class="nav-link font-medium text-sm theme-transition" data-tippy-content="Home">Home</a>
+            <a href="/dashboard" class="nav-link font-medium text-sm theme-transition" data-tippy-content="View Dashboard">Dashboard</a>
+            <a href="/analytics" class="nav-link font-medium text-sm theme-transition" data-tippy-content="View Analytics">Analytics</a>
+            
+            <!-- Mode Selector -->
+            <div class="relative group" data-tippy-content="System Mode">
+              <button class="flex items-center gap-2 px-3 py-1.5 rounded-lg theme-card theme-transition">
+                <span class="text-sm font-medium">Mode</span>
+                <svg class="w-4 h-4 theme-text-secondary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+              <div class="absolute right-0 mt-2 w-48 py-2 theme-card rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all theme-transition">
+                <a href="#" class="mode-link flex items-center gap-3 px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700" data-mode="manual">
+                  🖐️ Manual Mode
+                </a>
+                <a href="#" class="mode-link flex items-center gap-3 px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700" data-mode="automatic">
+                  ⚙️ Automatic
+                </a>
+                <a href="#" class="mode-link flex items-center gap-3 px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700" data-mode="scheduled">
+                  ⏰ Scheduled
+                </a>
+              </div>
+            </div>
+
+            <!-- Theme Toggle -->
+            <button id="theme-toggle" class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 theme-transition" data-tippy-content="Toggle Theme">
+              <svg class="w-5 h-5 theme-text" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" class="dark:hidden"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707" class="hidden dark:inline-block"/>
+              </svg>
+            </button>
+          </nav>
+        </div>
+      </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto px-6 py-8">
+      <!-- Mode Selection Interface -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <!-- Manual Mode -->
+        <div class="mode-button p-6 rounded-xl theme-card shadow-lg theme-transition cursor-pointer hover-lift" data-mode="manual">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-semibold">Manual Mode</h3>
+            <span class="text-2xl">🖐️</span>
+          </div>
+          <p class="theme-text-secondary text-sm">Take full control of your system with manual operation mode.</p>
+        </div>
+
+        <!-- Automatic Mode -->
+        <div class="mode-button p-6 rounded-xl theme-card shadow-lg theme-transition cursor-pointer hover-lift" data-mode="automatic">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-semibold">Automatic Mode</h3>
+            <span class="text-2xl">⚙️</span>
+          </div>
+          <p class="theme-text-secondary text-sm">Let the system intelligently manage operations based on sensors.</p>
+        </div>
+
+        <!-- Scheduled Mode -->
+        <div class="mode-button p-6 rounded-xl theme-card shadow-lg theme-transition cursor-pointer hover-lift" data-mode="scheduled">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-semibold">Scheduled Mode</h3>
+            <span class="text-2xl">⏰</span>
+          </div>
+          <p class="theme-text-secondary text-sm">Set up custom schedules for automated system operations.</p>
+        </div>
+      </div>
+    </main>
+
+    <script>
+      // Initialize tooltips
+      tippy('[data-tippy-content]', {
+        theme: document.body.dataset.theme === 'dark' ? 'dark' : 'light',
+        animation: 'shift-away'
+      });
+
+      // Theme Toggle Functionality
+      const themeToggle = document.getElementById('theme-toggle');
+      
+      function setTheme(isDark) {
+        document.body.dataset.theme = isDark ? 'dark' : 'light';
+        localStorage.setItem('theme', isDark ? 'dark' : 'light');
+        // Update tooltip theme
+        tippy.setDefaultProps({ theme: isDark ? 'dark' : 'light' });
+      }
+
+      // Initialize theme
+      const savedTheme = localStorage.getItem('theme') || 'light';
+      setTheme(savedTheme === 'dark');
+
+      // Theme toggle handler
+      themeToggle.addEventListener('click', () => {
+        const isDark = document.body.dataset.theme === 'dark';
+        setTheme(!isDark);
+      });
+
+      // Listen for theme changes from other pages
+      window.addEventListener('storage', (event) => {
+        if (event.key === 'theme') {
+          setTheme(event.newValue === 'dark');
+        }
+      });
+
+      // Mode Selection Functionality
+      const modeButtons = document.querySelectorAll('.mode-button');
+      const savedMode = localStorage.getItem('systemMode') || 'manual';
+
+      function setActiveMode(mode) {
+        // Remove active class from all buttons
+        modeButtons.forEach(button => {
+          button.classList.remove('active');
+          if(button.dataset.mode === mode) {
+            button.classList.add('active');
+          }
+        });
+        localStorage.setItem('systemMode', mode);
+      }
+
+      // Initialize active mode
+      setActiveMode(savedMode);
+
+      // Add click handlers to mode buttons
+      modeButtons.forEach(button => {
+        button.addEventListener('click', () => {
+          const mode = button.dataset.mode;
+          setActiveMode(mode);
+        });
+      });
+    </script>
+  </body>
+</html>
