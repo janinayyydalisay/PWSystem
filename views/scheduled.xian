@@ -130,6 +130,10 @@
       .zoom-label.show {
         opacity: 1;
       }
+      @keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
     </style>
   </head>
   <body class="antialiased theme-bg theme-text min-h-screen">
@@ -203,8 +207,16 @@
           </nav>
         </div>
       </div>
-    </header>    <main class="max-w-7xl mx-auto px-6 py-10">
-      <div class="h-screen flex flex-col">
+    </header>    
+    <main class="max-w-7xl mx-auto px-6 py-10">
+      <div class="h-screen flex flex-col">     
+
+      <!-- Top-center alert -->
+      <div id="topAlert" class="fixed top-4 left-1/2 -translate-x-1/2 z-[300] hidden">
+        <div id="topAlertInner" class="px-4 py-2 rounded-lg shadow-lg text-sm font-medium"></div>
+      </div>
+
+
         <div class="flex items-center justify-between mb-6 flex-shrink-0">
           <h1 class="text-2xl font-semibold theme-text">Scheduled Watering Control</h1>
           <div class="flex items-center gap-4">
@@ -370,6 +382,89 @@
         <!-- Toast Notification -->
         <div id="toast" class="fixed bottom-4 right-4 transform translate-y-full opacity-0 transition-all duration-300"></div>
       </div>
+
+      <!-- Schedule Edit Modal -->
+<div id="editScheduleModal" 
+     class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[200] hidden 
+            flex justify-center items-center p-4">
+  <div class="bg-white dark:bg-gray-800 w-full max-w-xl rounded-xl shadow-xl border theme-border 
+              animate-[fadeIn_0.25s_ease]">
+    
+    <!-- Header -->
+    <div class="px-6 py-4 border-b theme-border flex justify-between items-center">
+      <h2 class="text-lg font-semibold theme-text">Edit Watering Schedule</h2>
+      <button onclick="closeScheduleModal()"
+              class="p-2 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition">
+        <svg class="w-5 h-5 theme-text" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+
+    <!-- Body -->
+    <div class="px-6 py-6 space-y-5">
+      <!-- Hidden Plant ID -->
+      <input type="hidden" id="schedulePlantId">
+
+      <!-- Plant Name -->
+      <div>
+        <label class="block text-sm font-medium mb-1">Plant</label>
+        <input id="schedulePlantName" type="text" class="w-full px-3 py-2 rounded-lg border theme-border bg-white dark:bg-gray-700"
+               placeholder="Select plant" readonly />
+      </div>
+
+      <!-- Watering Frequency -->
+      <div>
+        <label class="block text-sm font-medium mb-1">Frequency</label>
+        <select id="scheduleFrequency" class="w-full px-3 py-2 rounded-lg border theme-border bg-white dark:bg-gray-700">
+          <option value="daily">Daily</option>
+          <option value="weekly">Weekly</option>
+        </select>
+      </div>
+
+      <!-- Days of Week (for Weekly) -->
+      <div id="daysOfWeekWrap" class="hidden">
+        <label class="block text-sm font-medium mb-2">Days of Week</label>
+        <div class="grid grid-cols-4 gap-2 text-sm">
+          <label class="flex items-center gap-2"><input type="checkbox" value="sun" class="dow"> Sun</label>
+          <label class="flex items-center gap-2"><input type="checkbox" value="mon" class="dow"> Mon</label>
+          <label class="flex items-center gap-2"><input type="checkbox" value="tue" class="dow"> Tue</label>
+          <label class="flex items-center gap-2"><input type="checkbox" value="wed" class="dow"> Wed</label>
+          <label class="flex items-center gap-2"><input type="checkbox" value="thu" class="dow"> Thu</label>
+          <label class="flex items-center gap-2"><input type="checkbox" value="fri" class="dow"> Fri</label>
+          <label class="flex items-center gap-2"><input type="checkbox" value="sat" class="dow"> Sat</label>
+        </div>
+      </div>
+
+      <!-- Time of Day -->
+      <div>
+        <label class="block text-sm font-medium mb-1">Time of Day</label>
+<input id="scheduleTime" type="time" class="w-full px-3 py-2 rounded-lg border theme-border bg-white dark:bg-gray-700" />
+      </div>
+
+<!-- Watering Duration (seconds) -->
+<div>
+  <label class="block text-sm font-medium mb-1">Duration (s)</label>
+  <input id="scheduleDurationSec" type="number" min="1" class="w-full px-3 py-2 rounded-lg border theme-border bg-white dark:bg-gray-700" />
+</div>
+
+    </div>
+
+    <!-- Footer -->
+    <div class="px-6 py-4 border-t theme-border flex justify-end gap-3">
+      <button onclick="closeScheduleModal()"
+              class="px-4 py-2 rounded-lg border theme-border hover:bg-gray-50 dark:hover:bg-gray-700">
+        Cancel
+      </button>
+<button onclick="saveSchedule()" class="px-4 py-2 bg-blue-600 text-white rounded-lg">
+  Save Schedule
+</button>
+
+    </div>
+
+  </div>
+</div>
     </main>
 
     <script src="/js/search.js"></script>
@@ -580,16 +675,10 @@
               </span>
             </td>
             <td class="px-6 py-4 text-right">
-              <button 
-                onclick="editSchedule('${plant.id}')"
-                class="schedule-btn hover-effect px-4 py-2 bg-violet-500 hover:bg-violet-600 text-white rounded-lg transition-all">
-                <span class="flex items-center gap-2">
-                  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  Edit Schedule
-                </span>
-              </button>
+  <button onclick="openScheduleModal('${plant.name}')"
+    class="text-violet-600 hover:text-violet-800 font-medium">
+    Edit Schedule
+  </button>
             </td>
           </tr>
         `).join('');
@@ -796,6 +885,116 @@
       mobileMenuButton.addEventListener('click', () => {
         mobileMenu.classList.toggle('hidden');
       });
+
+      function showTopAlert(message, type = 'success') {
+        const wrap = document.getElementById('topAlert');
+        const inner = document.getElementById('topAlertInner');
+        const classes = type === 'success'
+          ? 'bg-emerald-500 text-white'
+          : 'bg-red-500 text-white';
+        inner.className = `px-4 py-2 rounded-lg shadow-lg text-sm font-medium ${classes}`;
+        inner.textContent = message;
+        wrap.classList.remove('hidden');
+        clearTimeout(showTopAlert._t);
+        showTopAlert._t = setTimeout(() => wrap.classList.add('hidden'), 2500);
+      }
+
+      // Schedule Modal helpers
+      const frequencyEl = document.getElementById('scheduleFrequency');
+      const daysWrap = document.getElementById('daysOfWeekWrap');
+
+      function toggleDaysOfWeekVisibility() {
+        daysWrap.classList.toggle('hidden', frequencyEl.value !== 'weekly');
+      }
+      frequencyEl.addEventListener('change', toggleDaysOfWeekVisibility);
+
+      function getSelectedDays() {
+        return Array.from(document.querySelectorAll('#daysOfWeekWrap .dow'))
+          .filter(cb => cb.checked)
+          .map(cb => cb.value);
+      }
+
+      function openScheduleModal(plantId, plantName) {
+        document.getElementById("editScheduleModal").classList.remove("hidden");
+        document.getElementById("schedulePlantId").value = plantId || '';
+        document.getElementById("schedulePlantName").value = plantName || '';
+        // defaults
+        frequencyEl.value = 'daily';
+        toggleDaysOfWeekVisibility();
+        document.getElementById("scheduleTime").value = '07:00';
+        document.getElementById("scheduleDurationSec").value = 5;
+        // uncheck all days
+        document.querySelectorAll('#daysOfWeekWrap .dow').forEach(cb => cb.checked = false);
+        document.body.style.overflow = "hidden";
+      }
+
+      function closeScheduleModal() {
+        document.getElementById("editScheduleModal").classList.add("hidden");
+        document.body.style.overflow = "auto";
+      }
+
+      async function saveSchedule() {
+  const plantId = document.getElementById("schedulePlantId").value;
+  const plantName = document.getElementById("schedulePlantName").value;
+  const frequency = document.getElementById("scheduleFrequency").value;
+  const timeOfDay = document.getElementById("scheduleTime").value;
+  const durationSec = document.getElementById("scheduleDurationSec").value;
+
+  // Weekly days
+  let daysOfWeek = [];
+  document.querySelectorAll("input[name='dayCheckbox']:checked").forEach(box => {
+    daysOfWeek.push(box.value);
+  });
+
+  const payload = {
+    plantId,
+    plantName,
+    frequency,
+    timeOfDay,
+    durationSec,
+    daysOfWeek
+  };
+
+  console.log("📦 SENDING:", payload);
+
+  try {
+    const res = await fetch("/api/schedules", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+
+    const data = await res.json();
+    console.log("🔥 RESPONSE:", data);
+
+    if (data.success) {
+      showTopAlert("Schedule saved successfully!", "success");
+      closeScheduleModal();
+    } else {
+      showTopAlert("Error: " + data.error, "red");
+    }
+
+  } catch (err) {
+    console.error("❌ Save schedule error:", err);
+    showTopAlert("Failed to save schedule!", "warning");
+  }
+}
+
+      document.getElementById('saveScheduleBtn').addEventListener('click', saveSchedule);
+
+// ...existing code...
+        function openScheduleModal(plantName) {
+    document.getElementById("editScheduleModal").classList.remove("hidden");
+    document.getElementById("schedulePlantName").value = plantName;
+    document.body.style.overflow = "hidden";
+  }
+
+  function closeScheduleModal() {
+    document.getElementById("editScheduleModal").classList.add("hidden");
+    document.body.style.overflow = "auto";
+  }
+
+  
     </script>
   </body>
 </html>

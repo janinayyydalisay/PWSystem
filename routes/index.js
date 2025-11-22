@@ -1,8 +1,12 @@
 import express from "express";
 import { homePage, dashboardPage, analyticsPage, modeUsageApi } from "../controllers/homeController.js";
-import { getPumpActivityData, recordActivity, getDailyFrequency } from "../controllers/pumpActivityController.js";
+import { getPumpActivityData, recordActivity, getDailyFrequency, manualPumpOn, manualPumpOff, pumpStatus } from "../controllers/pumpActivityController.js";
 import { getModeTableData } from "../controllers/exportController.js";
 import plantRoutes from './plantRoutes.js';
+import scheduleRoutes from "./scheduleRoutes.js";
+
+import { addSchedule } from "../controllers/scheduleController.js";
+
 const router = express.Router();
 
 // Page routes
@@ -28,7 +32,16 @@ router.get('/api/pump-activity/daily', getDailyFrequency);
 // Export routes
 router.get('/api/table-data/:mode', getModeTableData);
 
+router.post('/api/pump/manual/on', manualPumpOn);
+router.post('/api/pump/manual/off', manualPumpOff);
+router.get('/api/pump/status', pumpStatus);
+
+// Schedule API (create)
+router.post('/api/schedules', addSchedule);
+
 // API routes
 router.use('/api/plants', plantRoutes);
+router.use("/schedules", scheduleRoutes);
+
 
 export default router;

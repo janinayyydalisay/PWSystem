@@ -534,7 +534,9 @@
           closeImageModal();
         }
       });
+      
 
+      
       // Keyboard controls
       document.addEventListener('keydown', (e) => {
         if (!modal.classList.contains('show')) return;
@@ -753,19 +755,19 @@
                 ${plant.status || 'idle'}
               </span>
             </td>
-            <td class="px-6 py-4 text-right">
-              <button 
-                onclick="waterPlant('${plant.id}')"
-                class="water-btn hover-effect px-4 py-2 bg-sky-500 hover:bg-sky-600 text-white rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                ${plant.status === 'watering' ? 'disabled' : ''}>
-                <span class="flex items-center gap-2">
-                  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19V5M12 5C12 5 9 8 7 11M12 5C12 5 15 8 17 11"></path>
-                  </svg>
-                  ${plant.status === 'watering' ? 'Watering...' : 'Water Now'}
-                </span>
-              </button>
-            </td>
+<td class="px-6 py-4 text-right">
+  <div class="inline-flex gap-2">
+<button onclick="turnOnPump('${plant.id}', '${plant.name}')"
+        class="px-3 py-1 bg-emerald-600 text-white rounded-md hover:bg-emerald-700">
+        ON
+</button>
+
+<button onclick="turnOffPump('${plant.id}', '${plant.name}')"
+        class="px-3 py-1 bg-red-600 text-white rounded-md hover:bg-red-700">
+        OFF
+</button>
+  </div>
+</td>
           </tr>
         `).join('');
       }
@@ -942,6 +944,92 @@
       mobileMenuButton.addEventListener('click', () => {
         mobileMenu.classList.toggle('hidden');
       });
+
+      function setButtonsForPumpStatus(pump) {
+  const onBtns = document.querySelectorAll('.on-pause-btn');
+  const offBtns = document.querySelectorAll('.off-btn');
+
+  if (pump === 'ON') {
+    onBtns.forEach(b => { b.textContent = 'Pause'; b.dataset.state = 'pause'; });
+    offBtns.forEach(b => { b.disabled = false; });
+  } else if (pump === 'PAUSED') {
+    onBtns.forEach(b => { b.textContent = 'Resume'; b.dataset.state = 'on'; });
+    offBtns.forEach(b => { b.disabled = false; });
+  } else { // OFF
+    onBtns.forEach(b => { b.textContent = 'On'; b.dataset.state = 'on'; });
+    offBtns.forEach(b => { b.disabled = true; });
+  }
+}
+
+async function refreshPumpStatus() {
+  try {
+    const res = await fetch('/api/pump/status');
+    const data = await res.json();
+    if (data.success) setButtonsForPumpStatus(data.state?.pump || 'OFF');
+  } catch { /* ignore */ }
+}
+
+document.getElementById('plants-tbody').addEventListener('click', async (e) => {
+  const onBtn = e.target.closest('.on-pause-btn');
+  const offBtn = e.target.closest('.off-btn');
+
+  if (onBtn) {
+    const state = onBtn.dataset.state || 'on';
+    const plantId = onBtn.dataset.plantId;
+    const plantName = onBtn.dataset.plantName;
+    try {
+      const url = state === 'pause' ? '/api/pump/manual/pause' : '/api/pump/manual/on';
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ plantId, plantName })
+      });
+      const data = await res.json();
+      if (!data.success) throw new Error(data.error || 'Failed');
+      setButtonsForPumpStatus(data.state?.pump || 'OFF');
+      showToast(state === 'pause' ? 'Pump Paused' : `Pump ON for ${plantName || 'plant'}`);
+    } catch (err) {
+      showToast(err.message || 'Action failed', 'error');
+    }
+  }
+
+  if (offBtn) {
+    try {
+      const res = await fetch('/api/pump/manual/off', { method: 'POST' });
+      const data = await res.json();
+      if (!data.success) throw new Error(data.error || 'Failed');
+      setButtonsForPumpStatus('OFF');
+      showToast('Pump OFF');
+    } catch (err) {
+      showToast(err.message || 'Action failed', 'error');
+    }
+  }
+});
+
+// After rendering plants, sync buttons to current status
+const _renderPlants = renderPlants;
+renderPlants = function(plants) {
+  _renderPlants(plants);
+  refreshPumpStatus();
+};
+
+function turnOnPump(plantId, plantName) {
+    fetch('/api/pump/manual/on', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ plantId, plantName })
+    });
+}
+
+function turnOffPump() {
+    fetch('/api/pump/manual/off', { method: 'POST' });
+}
+
+
+// Initial status + periodic sync
+refreshPumpStatus();
+setInterval(refreshPumpStatus, 3000);
+
     </script>
   </body>
 </html>

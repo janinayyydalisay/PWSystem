@@ -30,4 +30,4 @@ app.set("view engine", "xian");
 
 app.use("/", router);
 
-app.listen(PORT, () => console.log(`🔥 XianFire running at http://localhost:${PORT}`));
+app.listen(PORT, "0.0.0.0", () => console.log(`🔥 XianFire running at http://0.0.0.0:${PORT}`));

@@ -6,7 +6,7 @@ import { fileURLToPath } from 'url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const serviceAccount = JSON.parse(
-  readFileSync(join(__dirname, 'pws4f2-firebase-adminsdk-fbsvc-e72fa5148a.json'))
+  readFileSync(join(__dirname, 'watsys-5c357-firebase-adminsdk-fbsvc-c3bcd1bd4c.json'))
 );
 
 // Initialize Firebase Admin
@@ -16,5 +16,6 @@ initializeApp({
 
 // Get Firestore instance
 const db = getFirestore();
+db.settings({ ignoreUndefinedProperties: true });
 
 export { db };

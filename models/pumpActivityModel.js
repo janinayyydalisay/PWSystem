@@ -1,31 +1,87 @@
+// ...existing code...
 import { db } from './db.js';
 
-// Get pump activities within a time range
-export async function getPumpActivities(startDate = new Date(Date.now() - 24 * 60 * 60 * 1000)) {
-    try {
-        const activitiesRef = db.collection('pumpActivities');
-        const snapshot = await activitiesRef
-            .where('startTime', '>=', startDate)
-            .orderBy('startTime', 'desc')
-            .limit(50)
-            .get();
+// ...existing code...
+export async function getPumpActivities(
+  startDate = new Date(Date.now() - 24 * 60 * 60 * 1000),
+  mode
+) {
+  try {
+    let query = db.collection('pumpActivities')
+      .where('startTime', '>=', startDate)
+      .orderBy('startTime', 'desc')
+      .limit(50);
 
-        const activities = [];
-        snapshot.forEach(doc => {
-            const data = doc.data();
-            activities.push({
-                id: doc.id,
-                startTime: data.startTime.toDate(),
-                duration: data.duration,
-                mode: data.mode
-            });
-        });
-
-        return { success: true, activities };
-    } catch (error) {
-        console.error('Error getting pump activities:', error);
-        return { success: false, error: error.message };
+    if (mode) {
+      query = query.where('mode', '==', mode);
     }
+
+    const snapshot = await query.get();
+    return { success: true, activities: mapActivities(snapshot) };
+  } catch (error) {
+    if (error.code === 9 && String(error.details).includes('index')) {
+      if (!process.env.SUPPRESS_INDEX_WARNING) {
+        // Remove this line after index created
+        console.warn('Index missing; using fallback in-memory filter.');
+      }
+      const fallback = await db.collection('pumpActivities')
+        .orderBy('startTime', 'desc')
+        .limit(120)
+        .get();
+      const filtered = mapActivities(fallback)
+        .filter(a => a.startTime >= startDate && (!mode || a.mode === mode))
+        .slice(0, 50);
+      return {
+        success: true,
+        activities: filtered,
+        warning: process.env.SUPPRESS_INDEX_WARNING ? undefined :
+          'Create composite index: Collection pumpActivities, mode Asc, startTime Desc.'
+      };
+    }
+    return { success: false, error: error.message };
+  }
+}
+// ...existing code...
+
+function mapActivities(snapshot) {
+  const out = [];
+  snapshot.forEach(doc => {
+    const data = doc.data();
+    const start = data.startTime?.toDate ? data.startTime.toDate() : data.startTime;
+    out.push({
+      id: doc.id,
+      startTime: start,
+      duration: data.duration,
+      mode: data.mode,
+      details: data.details || {}
+    });
+  });
+  return out;
+}
+
+// Track current device state (single doc)
+export async function setDeviceState(partial) {
+  try {
+    const ref = db.collection('deviceStates').doc('main');
+    await ref.set({ updatedAt: new Date(), ...partial }, { merge: true });
+    const snap = await ref.get();
+    return { success: true, state: snap.data() };
+  } catch (error) {
+    console.error('Error setting device state:', error);
+    return { success: false, error: error.message };
+  }
+}
+
+export async function getDeviceState() {
+  try {
+    const ref = db.collection('deviceStates').doc('main');
+    const snap = await ref.get();
+    if (!snap.exists) return { success: true, state: { mode: 'manual', pump: 'OFF', updatedAt: new Date() } };
+    return { success: true, state: snap.data() };
+  } catch (error) {
+    console.error('Error getting device state:', error);
+    return { success: false, error: error.message };
+  }
 }
 
 // Record new pump activity
