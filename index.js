@@ -6,6 +6,10 @@ import router from "./routes/index.js";
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+const automationRoutes = require('./routes/automationRoutes');
+app.use('/automation', automationRoutes);
+
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static('public'));

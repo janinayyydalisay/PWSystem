@@ -6,7 +6,7 @@ import { fileURLToPath } from 'url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const serviceAccount = JSON.parse(
-  readFileSync(join(__dirname, 'watsys-5c357-firebase-adminsdk-fbsvc-c3bcd1bd4c.json'))
+  readFileSync(join(__dirname, 'watsys-5c357-firebase-adminsdk-fbsvc-0ae0788733.json'))
 );
 
 // Initialize Firebase Admin

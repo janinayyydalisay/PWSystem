@@ -7,7 +7,7 @@ import {
   getDeviceState 
 } from "../models/pumpActivityModel.js";
 
-const RPI_HOST = process.env.RPI_HOST || "192.168.97.218";  // your Pi IP
+const RPI_HOST = process.env.RPI_HOST || "192.168.130.218";  // your Pi IP
 const RPI_PORT = process.env.RPI_PORT || "5000";
 const RPI_URL = `http://${RPI_HOST}:${RPI_PORT}/pump`;
 
